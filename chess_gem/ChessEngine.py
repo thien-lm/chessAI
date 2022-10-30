@@ -12,14 +12,14 @@ class GameState():
         # bR = black Rock
         # wR = white Rock
         self.board = [
-            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
+            ["--", "bN", "bB", "bQ", "bK", "bB", "bN", "--"],
             ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', '--', '--', '--', '--', '--'],
+            ['--', '--', '--', 'wR', '--', '--', 'bp', '--'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
             ['--', '--', '--', 'bp', '--', '--', '--', '--'],
             ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
+            ["--", "wN", "wB", "wQ", "wK", "wB", "wN", "--"]
         ]
         self.moveFunction = {'p': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves, 'B': self.getBishopMoves, 'K': self.getKingMoves, 'Q': self.getQueenMoves}
         self.whiteToMove =  True
@@ -65,6 +65,121 @@ class GameState():
     def getPawnMoves(self, r, c, moves):
         if self.whiteToMove:
             if self.board[r-1][c] == '--':
+                moves.append(Move((r, c), (r-1, c), self.board))#moves: possible move
+                if r == 6 and self.board[r-2][c] == '--':#2 move first time
+                    moves.append(Move((r, c), (r-2, c), self.board))
+            if c - 1 >= 0:#cap left
+                if self.board[r-1][c-1][0] == 'b':#enemy piece to cap
+                    moves.append(Move((r, c), (r-1, c-1), self.board))
+
+            if c+1 <= 7: #cap right
+                if self.board[r-1][c+1][0] == 'b':
+                    moves.append(Move((r, c), (r-1, c+1), self.board))
+
+        else:
+            if r+1 <= 7 and self.board[r+1][c] == '--':
+                moves.append(Move((r, c), (r+1, c), self.board))
+                if r == 1 and self.board[r+2][c] == '--':#2 move first time
+                    moves.append(Move((r, c), (r+2, c), self.board))
+            if c + 1 <= 7 and r + 1 <= 7:#cap right
+                if self.board[r+1][c+1][0] == 'w':#enemy piece to cap
+                    moves.append(Move((r, c), (r+1, c+1), self.board))
+
+            if c - 1 >= 0 and r + 1 <= 7: #cap left
+                if self.board[r+1][c-1][0] == 'w':
+                    moves.append(Move((r, c), (r+1, c-1), self.board))                                
+
+
+    def getRookMoves(self, r, c, moves):
+        # temp1 = r
+        # temp2 = c
+        # if self.whiteToMove:
+        #     #right
+        #     if c + 1 <= 7:
+        #         temp2 += 1
+        #         while self.board[temp1][temp2] == '--':
+        #             moves.append(Move((r,c), (temp1, temp2), self.board))
+        #             temp2 += 1
+        #             if temp2 > 7 : break
+        #             if self.board[temp1][temp2][0] == 'b':
+        #                 moves.append(Move((r,c), (temp1, temp2), self.board))
+        #                 break
+        #     #left
+        #     temp2 = c
+        #     if c - 1 >= 0:
+        #         temp2 -= 1
+        #         moves.append(Move((r, c), (r, 0), self.board))
+        #         while self.board[temp1][temp2] == '--':
+        #             moves.append(Move((r, c), (temp1, temp2), self.board))
+        #             temp2 -= 1
+        #             if temp2 < 0 : break
+        #             if self.board[temp1][temp2][0] == 'b':
+        #                 moves.append(Move((r,c), (temp1, temp2), self.board))
+        #                 break
+
+        #     temp2 = c
+        #     if c - 1 >= 0:
+        #         temp2 -= 1
+        #         moves.append(Move((r, c), (r, 0), self.board))
+        #         while self.board[temp1][temp2] == '--':
+        #             moves.append(Move((r, c), (temp1, temp2), self.board))
+        #             temp2 -= 1
+        #             if temp2 < 0 : break
+        #             if self.board[temp1][temp2][0] == 'b':
+        #                 moves.append(Move((r,c), (temp1, temp2), self.board))
+        #                 break
+
+        directions = ((-1, 0), (1, 0), (0, 1), (0, -1))
+        enemyColor = 'b' if self.whiteToMove else 'w'
+        for d in directions:
+            for i in range(1, 8):
+                endRow = r + d[0]*i
+                endCol = c + d[0]*i
+                if 0 <= endCol < 8 and 0 <= endRow < 8:
+                    endPiece = self.board[endRow][endCol]
+                    if endPiece == '--':
+                        moves.append(Move((r, c), (endRow, endCol), self.board))
+                    elif endPiece[0] == enemyColor:
+                        moves.append(Move((r, c), (endRow, endCol), self.board))
+                        break
+                    else:
+                        break
+                else:
+                     break    
+                                       
+
+
+    def getKnightMoves(self, r, c, moves):
+        if self.whiteToMove:
+            if self.board[r-1][c] == '--':
+                moves.append(Move((r, c), (r-1, c), self.board))
+                if r == 6 and self.board[r-2][c] == '--':#2 move first time
+                    moves.append(Move((r, c), (r-2, c), self.board))
+            if c - 1 >= 0:#cap left
+                if self.board[r-1][c-1][0] == 'b':#enemy piece to cap
+                    moves.append(Move((r, c), (r-1, c-1), self.board))
+
+            if c+1 <= 7: #cap right
+                if self.board[r-1][c+1][0] == 'b':
+                    moves.append(Move((r, c), (r-1, c+1), self.board))
+
+        else:
+            if self.board[r+1][c] == '--':
+                moves.append(Move((r, c), (r+1, c), self.board))
+                if r == 1 and self.board[r+2][c] == '--':#2 move first time
+                    moves.append(Move((r, c), (r+2, c), self.board))
+            if c + 1 <= 7:#cap right
+                if self.board[r+1][c+1][0] == 'w':#enemy piece to cap
+                    moves.append(Move((r, c), (r+1, c+1), self.board))
+
+            if c - 1 >= 0: #cap left
+                if self.board[r+1][c-1][0] == 'w':
+                    moves.append(Move((r, c), (r+1, c-1), self.board))                                
+
+    
+    def getBishopMoves(self, r, c, moves):
+        if self.whiteToMove:
+            if self.board[r-1][c] == '--':
                 moves.append(Move((r, c), (r-1, c), self.board))
                 if r == 6 and self.board[r-2][c] == '--':#2 move first time
                     moves.append(Move((r, c), (r-2, c), self.board))
@@ -90,20 +205,61 @@ class GameState():
                     moves.append(Move((r, c), (r+1, c-1), self.board))                                
 
 
-    def getRookMoves(self, r, c, moves):
-        pass
-
-    def getKinghtMoves(self, r, c, moves):
-        pass
-    
-    def getBishopMoves(self, r, c, moves):
-        pass
-
     def getQueenMoves(self, r, c, moves):
-        pass
+        if self.whiteToMove:
+            if self.board[r-1][c] == '--':
+                moves.append(Move((r, c), (r-1, c), self.board))
+                if r == 6 and self.board[r-2][c] == '--':#2 move first time
+                    moves.append(Move((r, c), (r-2, c), self.board))
+            if c - 1 >= 0:#cap left
+                if self.board[r-1][c-1][0] == 'b':#enemy piece to cap
+                    moves.append(Move((r, c), (r-1, c-1), self.board))
+
+            if c+1 <= 7: #cap right
+                if self.board[r-1][c+1][0] == 'b':
+                    moves.append(Move((r, c), (r-1, c+1), self.board))
+
+        else:
+            if self.board[r+1][c] == '--':
+                moves.append(Move((r, c), (r+1, c), self.board))
+                if r == 1 and self.board[r+2][c] == '--':#2 move first time
+                    moves.append(Move((r, c), (r+2, c), self.board))
+            if c + 1 <= 7:#cap right
+                if self.board[r+1][c+1][0] == 'w':#enemy piece to cap
+                    moves.append(Move((r, c), (r+1, c+1), self.board))
+
+            if c - 1 >= 0: #cap left
+                if self.board[r+1][c-1][0] == 'w':
+                    moves.append(Move((r, c), (r+1, c-1), self.board))                                
+
     
     def getKingMoves(self, r, c, moves):
-        pass    
+        if self.whiteToMove:
+            if self.board[r-1][c] == '--':
+                moves.append(Move((r, c), (r-1, c), self.board))
+                if r == 6 and self.board[r-2][c] == '--':#2 move first time
+                    moves.append(Move((r, c), (r-2, c), self.board))
+            if c - 1 >= 0:#cap left
+                if self.board[r-1][c-1][0] == 'b':#enemy piece to cap
+                    moves.append(Move((r, c), (r-1, c-1), self.board))
+
+            if c+1 <= 7: #cap right
+                if self.board[r-1][c+1][0] == 'b':
+                    moves.append(Move((r, c), (r-1, c+1), self.board))
+
+        else:
+            if self.board[r+1][c] == '--':
+                moves.append(Move((r, c), (r+1, c), self.board))
+                if r == 1 and self.board[r+2][c] == '--':#2 move first time
+                    moves.append(Move((r, c), (r+2, c), self.board))
+            if c + 1 <= 7:#cap right
+                if self.board[r+1][c+1][0] == 'w':#enemy piece to cap
+                    moves.append(Move((r, c), (r+1, c+1), self.board))
+
+            if c - 1 >= 0: #cap left
+                if self.board[r+1][c-1][0] == 'w':
+                    moves.append(Move((r, c), (r+1, c-1), self.board))                                
+    
 
 class Move():
     #map keys to values
