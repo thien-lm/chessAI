@@ -73,7 +73,7 @@ def main():
                 if len(playerClicks) == 2: #after second click
                     move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board) 
                 #    print(move.getChessNotation())
-                #    print(len(validMoves))
+                    print(len(validMoves))
                     if move in validMoves:
                         gs.makeMove(move)
                         print('Valid Move')

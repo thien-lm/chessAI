@@ -12,10 +12,10 @@ class GameState():
         # bR = black Rock
         # wR = white Rock
         self.board = [
-            ["--", "bN", "bB", "bQ", "bK", "bB", "bN", "--"],
-            ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
+            ["--", "bN", "--", "--", "bK", "--", "bN", "--"],
+            ['bp', 'bp', 'bp', '--', '--', '--', 'bp', 'bp'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', 'wR', '--', '--', 'bp', '--'],
+            ['--', '--', '--', 'wQ', 'wQ', 'wQ', 'bp', '--'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
             ['--', '--', '--', 'bp', '--', '--', '--', '--'],
             ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
@@ -24,12 +24,21 @@ class GameState():
         self.moveFunction = {'p': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves, 'B': self.getBishopMoves, 'K': self.getKingMoves, 'Q': self.getQueenMoves}
         self.whiteToMove =  True
         self.moveLog = [] 
+        self.whiteKingLocation = (7, 4)
+        self.blackKingLocation = (0, 4)
+        self.checkMate = False
+        self.staleMate = False
 
     def makeMove(self, move):
         self.board[move.startRow][move.startCol] = "--"
         self.board[move.endRow][move.endCol] = move.pieceMoved
         self.moveLog.append(move) #log the move to display it later
         self.whiteToMove = not self.whiteToMove #switch turn
+        if move.pieceMoved == 'wK':
+            self.whiteKingLocation = (move.endRow, move.endCol)
+        elif move.pieceMoved == 'bK':
+            self.blackKingLocation = (move.endRow, move.endCol)
+        
 
     ''' undo the lastMove'''  
     def undoMove(self):
@@ -38,11 +47,61 @@ class GameState():
             self.board[move.startRow][move.startCol] = move.pieceMoved
             self.board[move.endRow][move.endCol] = move.pieceCaptured
             self.whiteToMove = not self.whiteToMove
+            #update king's locaiton
+            if move.pieceMoved == 'wK':
+                self.whiteKingLocation = (move.endRow, move.endCol)
+            elif move.pieceMoved == 'bK':
+                self.blackKingLocation = (move.endRow, move.endCol)
+
     '''
     checking move
     '''        
     def getValidMoves(self):
-        return self.getAllPossibleMoves()
+        #need consider check
+        #1. generate all possible move
+        moves = self.getAllPossibleMoves()
+        #2 make move for each move
+        for i in range(len(moves) - 1, -1, -1):
+            self.makeMove(moves[i])
+        #3 generate all opponet's move
+
+        #4 for each opponent move, check if they attack your king
+            self.whiteToMove = not self.whiteToMove
+            if self.inCheck():
+                moves.remove(moves[i])
+
+        #5 if they do attack your king, not a valid move
+            self.whiteToMove = not self.whiteToMove
+            self.undoMove()
+        if len(moves) == 0:
+            print('winner appeared')
+            if self.inCheck():
+                self.checkMate = True
+            else:
+                self.staleMate = True
+        else:
+            self.checkMate = False
+            self.staleMate = False
+
+        return moves
+#determine if current player incheck
+    def inCheck(self):
+        if self.whiteToMove:
+            return self.squareUnderAttack(self.whiteKingLocation[0], self.whiteKingLocation[1])
+        else:
+            return self.squareUnderAttack(self.blackKingLocation[0], self.blackKingLocation[1])
+
+#determmine if the enemy can attack square r, c
+    def squareUnderAttack(self, r, c):
+        self.whiteToMove = not self.whiteToMove#switch to oppoent turn
+        oppMoves = self.getAllPossibleMoves()
+        self.whiteToMove = not self.whiteToMove        
+        for move in oppMoves:
+            if move.endRow == r and move.endCol == c: #sqr is under attack
+                return True
+        return False
+
+
 
     '''
     all moves without check
@@ -91,43 +150,6 @@ class GameState():
 
 
     def getRookMoves(self, r, c, moves):
-        # temp1 = r
-        # temp2 = c
-        # if self.whiteToMove:
-        #     #right
-        #     if c + 1 <= 7:
-        #         temp2 += 1
-        #         while self.board[temp1][temp2] == '--':
-        #             moves.append(Move((r,c), (temp1, temp2), self.board))
-        #             temp2 += 1
-        #             if temp2 > 7 : break
-        #             if self.board[temp1][temp2][0] == 'b':
-        #                 moves.append(Move((r,c), (temp1, temp2), self.board))
-        #                 break
-        #     #left
-        #     temp2 = c
-        #     if c - 1 >= 0:
-        #         temp2 -= 1
-        #         moves.append(Move((r, c), (r, 0), self.board))
-        #         while self.board[temp1][temp2] == '--':
-        #             moves.append(Move((r, c), (temp1, temp2), self.board))
-        #             temp2 -= 1
-        #             if temp2 < 0 : break
-        #             if self.board[temp1][temp2][0] == 'b':
-        #                 moves.append(Move((r,c), (temp1, temp2), self.board))
-        #                 break
-
-        #     temp2 = c
-        #     if c - 1 >= 0:
-        #         temp2 -= 1
-        #         moves.append(Move((r, c), (r, 0), self.board))
-        #         while self.board[temp1][temp2] == '--':
-        #             moves.append(Move((r, c), (temp1, temp2), self.board))
-        #             temp2 -= 1
-        #             if temp2 < 0 : break
-        #             if self.board[temp1][temp2][0] == 'b':
-        #                 moves.append(Move((r,c), (temp1, temp2), self.board))
-        #                 break
 
         directions = ((-1, 0), (1, 0), (0, 1), (0, -1))
         enemyColor = 'b' if self.whiteToMove else 'w'
