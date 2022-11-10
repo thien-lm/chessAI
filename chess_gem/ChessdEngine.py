@@ -13,14 +13,14 @@ class GameState():
         # bR = black Rock
         # wR = white Rock
         self.board = [
-            ["--", "bN", "--", "--", "bK", "--", "bN", "--"],
+            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
             ['bp', 'bp', 'bp', '--', '--', '--', 'bp', 'bp'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
             ['--', '--', '--', 'wQ', '--', '--', 'bp', '--'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
             ['--', '--', '--', 'bp', '--', '--', '--', '--'],
             ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-            ["--", "wN", "wB", "wQ", "wK", "wB", "wN", "--"]
+            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
         ]
         self.moveFunction = {'p': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves, 'B': self.getBishopMoves, 'K': self.getKingMoves, 'Q': self.getQueenMoves}
         self.whiteToMove =  True

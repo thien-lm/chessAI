@@ -4,7 +4,7 @@ class Move():
     rowsToRanks = {v: k for k, v in ranksToRows.items()}
     filesToCols = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
     colsToFiles = {v: k for k, v in filesToCols.items()}
-    def __init__(self, startSq, endSq, board):
+    def __init__(self, startSq, endSq, board, isCastleMove = False):
         self.startRow = startSq[0]
         self.startCol = startSq[1]
         self.endRow = endSq[0]
@@ -17,6 +17,8 @@ class Move():
             self.isPawnPromotion = True
 
         self.moveID = self.startRow*1000 + self.startCol*100 + self.endRow*10 + self.endCol
+
+        self.isCastleMove = isCastleMove
         #print(self.moveID)
     def __eq__(self, other):
         if isinstance(other, Move):

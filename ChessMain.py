@@ -77,7 +77,8 @@ def main():
                     for i in range(len(validMoves)):
                         if move == validMoves[i]:
                             gs.makeMove(validMoves[i])
-                            print('Valid Move')
+                           #print('Valid Move')
+                            if(validMoves[i].isCastleMove == True): print('this is a valid move')
                             moveMade = True
                             sqSelected = () #reset user click
                             playerClicks = [] 
