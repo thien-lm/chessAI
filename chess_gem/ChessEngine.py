@@ -14,14 +14,14 @@ class GameState():
         # bR = black Rock
         # wR = white Rock
         self.board = [
-            ["bR", "--", "--", "bK", "--", "--", "--", "bR"],
-            ['bp', 'bp', 'bp', '--', '--', '--', 'bp', 'bp'],
+            ["bR", "--", "--", "bQ", "bK", "bB", "bN", "bR"],
+            ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
             ['--', '--', '--', '--', '--', 'wp', '--', '--'],
             ['--', '--', '--', '--', '--', '--', 'bp', '--'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', 'wQ', 'wp', 'wp', '--', '--'],
-            ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-            ["wR", "--", "--", "--", "wK", "--", "--", "wR"]
+            ['--', '--', 'wQ', '--', 'wQ', 'wQ', '--', '--'],
+            ['wQ', 'wQ', 'wQ', 'wQ', 'wQ', 'wQ', 'wQ', 'wQ'],
+            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
         ]
         self.moveFunction = {'p': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves, 'B': self.getBishopMoves, 'K': self.getKingMoves, 'Q': self.getQueenMoves}
         self.whiteToMove =  True
@@ -279,7 +279,7 @@ class GameState():
                 endCol = c + k[1]
                 if 0 <= endCol < 8 and 0 <= endRow < 8:
                     endPiece = self.board[endRow][endCol]
-                    if endPiece != ally:
+                    if endPiece[0] != ally:
                         moves.append(Move((r, c), (endRow, endCol), self.board))
     
     def getBishopMoves(self, r, c, moves):

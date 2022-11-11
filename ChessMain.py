@@ -1,7 +1,7 @@
 import imp
 from tkinter import TRUE
 import pygame as p
-from chess_gem import ChessEngine
+from chess_gem import ChessEngine, SmartMoveFinder
 import sys
 
 WIDTH = HEIGHT = 512
@@ -61,13 +61,17 @@ def main():
     sqSelected = () #no quare selected, keep track last  click
     playerClicks = [] # keep track player click
     gameOver = False
+    playerOne = False#if a human is playing, human play white, AI playing = false
+    playerTwo = False#same as above but for black
+
     while running:
+        humanTurn = (gs.whiteToMove and playerOne) or(not gs.whiteToMove and playerTwo)
         for e in p.event.get():
             if e.type == p.QUIT:
                 sys.exit()
             #mouse handler    
             elif e.type == p.MOUSEBUTTONDOWN:
-                if not gameOver:
+                if not gameOver and humanTurn:
                     location = p.mouse.get_pos()#mouse location(x,y)
                     col = location[0] // SQ_SIZE
                     row = location[1] // SQ_SIZE
@@ -109,6 +113,12 @@ def main():
                     moveMade = False
                     animate = False
 
+        #AI move Finder
+        if not gameOver and not humanTurn:
+            AIMove = SmartMoveFinder.findRandomMove(validMoves)
+            gs.makeMove(AIMove)
+            moveMade = True
+            animate = True
 
         if moveMade:
             if animate: 
