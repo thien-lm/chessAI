@@ -21,12 +21,15 @@ def loadImages():
         IMAGES[piece] = p.transform.scale(p.image.load('images/' + piece +'.png'), (SQ_SIZE, SQ_SIZE))
    #acess image by images[piece]
 
-def drawGameState(screen, gs):
+def drawGameState(screen, gs, validMoves, sqSelected):
     drawBoard(screen)#dRaw square
     #addin suggestion
+    highlightSquares(screen, gs, validMoves, sqSelected)
     drawPieces(screen, gs.board)#draw pieces
 
+
 def drawBoard(screen):
+    global colors
     colors = [p.Color('white'), p.Color('gray')]
     for r in range(DIMENSION):
         for c in range(DIMENSION):
@@ -49,6 +52,7 @@ def main():
 
     validMoves = gs.getValidMoves()
     moveMade = False #flag when a move is made
+    animate = False #flag when animate
     #print(gs.board) # this is a board representation
     loadImages()
     running = True
@@ -78,8 +82,9 @@ def main():
                         if move == validMoves[i]:
                             gs.makeMove(validMoves[i])
                            #print('Valid Move')
-                            if(validMoves[i].isCastleMove == True): print('this is a valid move')
+                            if(move.isCastleMove == True): print('this is a valid move')
                             moveMade = True
+                            animate = True
                             sqSelected = () #reset user click
                             playerClicks = [] 
                     if not moveMade:
@@ -91,16 +96,70 @@ def main():
                     gs.undoMove()
                     print('undo')
                     moveMade = True
-                    validMoves = gs.getValidMoves()
+                    animate = False
+                    #validMoves = gs.getValidMoves()
+                if e.key == p.K_r:#reset game
+                    gs = ChessEngine.GameState()
+                    validMoves = gs.getValidMoves
+                    sqSelected = ()
+                    playerClicks = []
+                    moveMade = False
+                    animate = False
+
+
         if moveMade:
+            if animate: 
+                animateMove(gs.moveLog[-1], screen, gs.board, clock)
             validMoves = gs.getValidMoves()
             moveMade = False
+            animate = False
 
 
 
-        drawGameState(screen, gs)
+        drawGameState(screen, gs, validMoves, sqSelected)
         clock.tick(MAX_FPS)
         p.display.flip()     
+
+
+    '''highlight square'''
+def highlightSquares(screen, gs, validMoves, sqSelected):
+    if sqSelected != ():
+        r, c = sqSelected
+        if gs.board[r][c][0] == ('w' if gs.whiteToMove else 'b'):
+                s = p.Surface((SQ_SIZE, SQ_SIZE))
+                s.set_alpha(100) #transparency value ->0 tranparent, 255: opaque
+                s.fill(p.Color('blue'))
+                screen.blit(s, (c * SQ_SIZE, r* SQ_SIZE))
+                #hight lightmove from that square
+                s.fill(p.Color('yellow'))
+                for move in validMoves:
+                    if(move.startRow == r and move.startCol == c):
+                        screen.blit(s, (SQ_SIZE * move.endCol, SQ_SIZE * move.endRow))
+
+def animateMove(move, screen, board, clock):
+    global colors
+    #coords = [] #list of coord that the animation will move through
+    dR = move.endRow - move.startRow
+    dC = move.endCol - move.startCol
+    framesPerSquare = 10#frames to move one square
+    frameCount = (abs(dR) + abs(dC)) * framesPerSquare
+    for frame in range(frameCount + 1):
+        r, c = ((move.startRow + dR*frame/frameCount, move.startCol + dC*frame/frameCount))
+        drawBoard(screen)
+        drawPieces(screen, board)
+        #earse the piece moved form it ending square
+        color = colors[(move.endRow + move.endCol) % 2]
+        endSquare = p.Rect(move.endCol * SQ_SIZE, move.endRow*SQ_SIZE, SQ_SIZE, SQ_SIZE)
+        p.draw.rect(screen, color, endSquare)
+        #draw captured piece onto rect
+        if move.pieceCaptured != '--':
+            screen.blit(IMAGES[move.pieceCaptured], endSquare)
+        
+        #draw moving piece
+        screen.blit(IMAGES[move.pieceMoved], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+        p.display.flip()
+        clock.tick(60)
+
 
 
 main()    

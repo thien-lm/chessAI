@@ -81,9 +81,9 @@ class GameState():
             self.whiteToMove = not self.whiteToMove
             #update king's locaiton
             if move.pieceMoved == 'wK':
-                self.whiteKingLocation = (move.endRow, move.endCol)
+                self.whiteKingLocation = (move.startRow, move.startCol)
             elif move.pieceMoved == 'bK':
-                self.blackKingLocation = (move.endRow, move.endCol)
+                self.blackKingLocation = (move.startRow, move.startCol)
             #undo castlingRight
             self.castleRightsLog.pop()
             # self.currentCastlingRight = self.castleRightsLog[-1]
@@ -153,9 +153,9 @@ class GameState():
         print(len(moves))
         print(self.whiteKingLocation[0], self.whiteKingLocation[1], self.blackKingLocation[0], self.blackKingLocation[1])
         if self.whiteToMove:
-            self.getCastleMoves(self.whiteKingLocation[0], self.whiteKingLocation[1], moves)
+            self.getCastleMoves(7, 4, moves)
         else:
-            self.getCastleMoves(self.blackKingLocation[0], self.blackKingLocation[1], moves)
+            self.getCastleMoves(0, 4, moves)
 
         print(len(moves))
         #2 make move for each move
@@ -327,12 +327,12 @@ class GameState():
         if self.squareUnderAttack(r, c):
             return
 
-        #if (self.whiteToMove and self.currentCastlingRight.wks) or (not self.whiteToMove and self.currentCastlingRight.bks):
-        if (True):
+        if (self.whiteToMove and self.currentCastlingRight.wks) or (not self.whiteToMove and self.currentCastlingRight.bks):
+        #if (True):
             self.getKingsideCastleMoves(r, c, moves)
         
-        #if (self.whiteToMove and self.currentCastlingRight.wqs) or (not self.whiteToMove and self.currentCastlingRight.bqs):
-        if (True):
+        if (self.whiteToMove and self.currentCastlingRight.wqs) or (not self.whiteToMove and self.currentCastlingRight.bqs):
+        #if (True):
             self.getQueensideCatleMoves(r, c, moves)
             
     def getKingsideCastleMoves(self, r, c, moves):
