@@ -1,21 +1,25 @@
-#TODO: use numpy instead of array
+#TODO: use numpy instead of list
+import tkinter as tk
+from tkinter import ttk
 from logging import captureWarnings
 from multiprocessing import RLock
+from easygui import *
 from chess import Board
 from numpy import blackman
 from chess_gem.Move import Move
+
 class GameState():
     def __init__(self):
         # represent a 8x8 chess Board
         # bR = black Rock
         # wR = white Rock
         self.board = [
-            ["bR", "--", "--", "--", "bK", "--", "--", "bR"],
-            ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-            ['--', '--', '--', '--', 'bp', '--', '--', '--'],
+            ["bR", "--", "--", "bK", "--", "--", "--", "bR"],
+            ['bp', 'bp', 'bp', '--', '--', '--', 'bp', 'bp'],
+            ['--', '--', '--', '--', '--', 'wp', '--', '--'],
             ['--', '--', '--', '--', '--', '--', 'bp', '--'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', '--', 'wp', '--', '--', '--'],
+            ['--', '--', '--', 'wQ', 'wp', 'wp', '--', '--'],
             ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
             ["wR", "--", "--", "--", "wK", "--", "--", "wR"]
         ]
@@ -56,10 +60,16 @@ class GameState():
                 else:
                     self.board[move.endRow][move.endCol + 1] = self.board[move.endRow][move.endCol - 2]
                     self.board[move.endRow][move.endCol -2 ] = '--'
-
+        # i = 0
+        # print(i)
+        # if move.isPawnPromotion and  move.pieceMoved == 'wp':
+        #     choices = ['Q', 'B', 'N', 'R']
+        #     output = choicebox('hi', 'thien dep trai vai dai', choices)
+        #     self.board[move.endRow][move.endCol] = move.pieceMoved[0] + output
+        #     i+=1
+        # print(i)
         if move.isPawnPromotion:
             self.board[move.endRow][move.endCol] = move.pieceMoved[0] + 'Q'
-
         # if move.isCastleMove:
         #     if move.endCol - move.startCol == 2:
         #         self.board[move.endRow][move.endCol - 1] = self.board[move.endRow][move.endCol + 1]
