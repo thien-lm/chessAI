@@ -14,13 +14,13 @@ class GameState():
         # bR = black Rock
         # wR = white Rock
         self.board = [
-            ["bR", "--", "--", "bQ", "bK", "bB", "bN", "bR"],
+            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
             ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-            ['--', '--', '--', '--', '--', 'wp', '--', '--'],
-            ['--', '--', '--', '--', '--', '--', 'bp', '--'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', 'wQ', '--', 'wQ', 'wQ', '--', '--'],
-            ['wQ', 'wQ', 'wQ', 'wQ', 'wQ', 'wQ', 'wQ', 'wQ'],
+            ['--', '--', '--', '--', '--', '--', '--', '--'],
+            ['--', '--', '--', '--', '--', '--', '--', '--'],
+            ['--', '--', '--', '--', '--', '--', '--', '--'],
+            ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
         ]
         self.moveFunction = {'p': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves, 'B': self.getBishopMoves, 'K': self.getKingMoves, 'Q': self.getQueenMoves}
@@ -30,6 +30,7 @@ class GameState():
         self.blackKingLocation = (0, 4)
         self.checkMate = False
         self.staleMate = False
+        self.numberMove = 0
         self.currentCastlingRight = CastleRights(True, True, True, True)
         self.castleRightsLog = [CastleRights(self.currentCastlingRight.wks, self.currentCastlingRight.bks, self.currentCastlingRight.wqs, self.currentCastlingRight.bqs)]
 
@@ -151,23 +152,22 @@ class GameState():
     '''        
     def getValidMoves(self):
         #need consider check
-        i = 0
 
-        print(self.currentCastlingRight.wks, self.currentCastlingRight.bks, self.currentCastlingRight.wqs, self.currentCastlingRight.bqs)
-        for log in self.castleRightsLog:
-            print(log.wks, log.wqs, log.bks, log.bqs, i)
-            i+=1
+        # print(self.currentCastlingRight.wks, self.currentCastlingRight.bks, self.currentCastlingRight.wqs, self.currentCastlingRight.bqs)
+        # for log in self.castleRightsLog:
+        #     print(log.wks, log.wqs, log.bks, log.bqs, i)
+        #     i+=1
         tempCastleRights = CastleRights(self.currentCastlingRight.wks, self.currentCastlingRight.bks, self.currentCastlingRight.wqs, self.currentCastlingRight.bqs)
         #1. generate all possible move
         moves = self.getAllPossibleMoves()
-        print(len(moves))
-        print(self.whiteKingLocation[0], self.whiteKingLocation[1], self.blackKingLocation[0], self.blackKingLocation[1])
+        # print(len(moves))
+        # print(self.whiteKingLocation[0], self.whiteKingLocation[1], self.blackKingLocation[0], self.blackKingLocation[1])
         if self.whiteToMove:
             self.getCastleMoves(7, 4, moves)
         else:
             self.getCastleMoves(0, 4, moves)
 
-        print(len(moves))
+        #print(len(moves))
         #2 make move for each move
         for i in range(len(moves) - 1, -1, -1):
             self.makeMove(moves[i])
@@ -181,9 +181,11 @@ class GameState():
         #5 if they do attack your king, not a valid move
             self.whiteToMove = not self.whiteToMove
             self.undoMove()
+            
         
         if len(moves) == 0:
             print('winner appeared')
+            #print(self.numberMove)
             if self.inCheck():
                 self.checkMate = True
             else:
@@ -346,7 +348,6 @@ class GameState():
             self.getQueensideCatleMoves(r, c, moves)
             
     def getKingsideCastleMoves(self, r, c, moves):
-        print('king')
         if self.board[r][c+1] == '--' and self.board[r][c+2] == '--':
             if not self.squareUnderAttack(r, c+1) and not self.squareUnderAttack(r, c + 2 ):
                 
@@ -355,7 +356,6 @@ class GameState():
     def getQueensideCatleMoves(self, r, c, moves):    
         if self.board[r][c-1] == '--' and self.board[r][c-2]  == '--' and self.board[r][c-3] == '--':
             if not self.squareUnderAttack(r, c-1) and not self.squareUnderAttack(r, c-2 ) and not self.squareUnderAttack(r, c-3 ):
-                print('queens')
                 moves.append(Move((r, c), (r, c-2), self.board, isCastleMove = True))                              
 
 class CastleRights():

@@ -58,6 +58,8 @@ def main():
     loadImages()
     running = True
 
+    numMove = 0
+
     sqSelected = () #no quare selected, keep track last  click
     playerClicks = [] # keep track player click
     gameOver = False
@@ -115,10 +117,23 @@ def main():
 
         #AI move Finder
         if not gameOver and not humanTurn:
-            AIMove = SmartMoveFinder.findRandomMove(validMoves)
-            gs.makeMove(AIMove)
-            moveMade = True
-            animate = True
+            if gs.whiteToMove:
+                AIMove = SmartMoveFinder.findGreedy(gs, validMoves)
+                if AIMove is None:
+                    AIMove = SmartMoveFinder.findRandomMove(validMoves)
+                gs.makeMove(AIMove)
+                numMove += 1
+                print(AIMove.getChessNotation())
+                moveMade = True
+                animate = True
+            else:
+                AIMove = SmartMoveFinder.findRandomMove(validMoves)
+                gs.makeMove(AIMove)
+                numMove += 1
+                print(AIMove.getChessNotation())
+                moveMade = True
+                animate = True
+
 
         if moveMade:
             if animate: 
@@ -133,10 +148,17 @@ def main():
 
         if gs.checkMate:
             gameOver = True
+            print(numMove)
             if gs.whiteToMove:
                 drawText(screen, "black wins by checkmate")
             else:
                 drawText(screen, 'white wins by checkmate')
+                gs = ChessEngine.GameState()
+                validMoves = gs.getValidMoves
+                sqSelected = ()
+                playerClicks = []
+                moveMade = False
+                animate = False
         elif gs.staleMate:
             gameOver = True
             drawText(screen, 'Stalemate')
@@ -164,7 +186,7 @@ def animateMove(move, screen, board, clock):
     #coords = [] #list of coord that the animation will move through
     dR = move.endRow - move.startRow
     dC = move.endCol - move.startCol
-    framesPerSquare = 10#frames to move one square
+    framesPerSquare = 1#frames to move one square
     frameCount = (abs(dR) + abs(dC)) * framesPerSquare
     for frame in range(frameCount + 1):
         r, c = ((move.startRow + dR*frame/frameCount, move.startCol + dC*frame/frameCount))
