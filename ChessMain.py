@@ -64,7 +64,7 @@ def main():
     playerClicks = [] # keep track player click
     gameOver = False
     playerOne = False#if a human is playing, human play white, AI playing = false
-    playerTwo = False#same as above but for black
+    playerTwo = True#same as above but for black
 
     while running:
         humanTurn = (gs.whiteToMove and playerOne) or(not gs.whiteToMove and playerTwo)
@@ -106,6 +106,7 @@ def main():
                     print('undo')
                     moveMade = True
                     animate = False
+                    gameOver = False
                     #validMoves = gs.getValidMoves()
                 if e.key == p.K_r:#reset game
                     gs = ChessEngine.GameState()
@@ -114,11 +115,12 @@ def main():
                     playerClicks = []
                     moveMade = False
                     animate = False
+                    gameOver = False
 
         #AI move Finder
         if not gameOver and not humanTurn:
-            if gs.whiteToMove:
-                AIMove = SmartMoveFinder.findGreedy(gs, validMoves)
+            # if gs.whiteToMove:
+                AIMove = SmartMoveFinder.findBestMoveMinMax(gs, validMoves)
                 if AIMove is None:
                     AIMove = SmartMoveFinder.findRandomMove(validMoves)
                 gs.makeMove(AIMove)
@@ -126,13 +128,13 @@ def main():
                 print(AIMove.getChessNotation())
                 moveMade = True
                 animate = True
-            else:
-                AIMove = SmartMoveFinder.findRandomMove(validMoves)
-                gs.makeMove(AIMove)
-                numMove += 1
-                print(AIMove.getChessNotation())
-                moveMade = True
-                animate = True
+            # else:
+            #     AIMove = SmartMoveFinder.findGreedy(gs, validMoves)
+            #     gs.makeMove(AIMove)
+            #     numMove += 1
+            #     print(AIMove.getChessNotation())
+            #     moveMade = True
+            #     animate = True
 
 
         if moveMade:
@@ -153,8 +155,8 @@ def main():
                 drawText(screen, "black wins by checkmate")
             else:
                 drawText(screen, 'white wins by checkmate')
-                gs = ChessEngine.GameState()
-                validMoves = gs.getValidMoves
+                # gs = ChessEngine.GameState()
+                # validMoves = gs.getValidMoves
                 sqSelected = ()
                 playerClicks = []
                 moveMade = False
@@ -162,6 +164,7 @@ def main():
         elif gs.staleMate:
             gameOver = True
             drawText(screen, 'Stalemate')
+            #main()
         clock.tick(MAX_FPS)
         p.display.flip()     
 
@@ -186,7 +189,7 @@ def animateMove(move, screen, board, clock):
     #coords = [] #list of coord that the animation will move through
     dR = move.endRow - move.startRow
     dC = move.endCol - move.startCol
-    framesPerSquare = 1#frames to move one square
+    framesPerSquare = 10#frames to move one square
     frameCount = (abs(dR) + abs(dC)) * framesPerSquare
     for frame in range(frameCount + 1):
         r, c = ((move.startRow + dR*frame/frameCount, move.startCol + dC*frame/frameCount))
