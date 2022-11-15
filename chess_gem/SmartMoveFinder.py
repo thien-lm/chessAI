@@ -3,7 +3,7 @@ import random
 pieceScore = {'K': 0, 'Q': 10,'R': 5, 'B': 3, 'N': 3, 'p': 1}
 CHECKMATE = 1000
 STALEMATE = 0
-DEPTH = 2
+DEPTH = 3
 
 def findRandomMove(validMoves):
     return validMoves[random.randint(0, len(validMoves) - 1)]
@@ -44,9 +44,14 @@ def findGreedy(gs, validMoves):
         gs.undoMove()
     return bestPlayerMove
 
-def findBestMoveMinMax(gs, validMoves):
+def findBestMove(gs, validMoves):
     global nextMove
-    findMoveMinMax(gs, validMoves, DEPTH, gs.whiteToMove )
+    nextMove = None
+    random.shuffle(validMoves)
+    #findMoveNegaMax(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1 )
+    #findMoveMinMax(gs, validMoves, DEPTH, gs.whiteToMove )
+    findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1)
+    print(nextMove)
     return nextMove
 
 
@@ -101,6 +106,45 @@ def scoreBoard(gs):
             elif square[0] == 'b':
                 score -= pieceScore[square[1]]
     return score
+
+def findMoveNegaMax(gs, validMoves, depth, turnMultipler):
+    global nextMove
+    if depth == 0:
+        return turnMultipler * scoreBoard(gs)
+
+    maxScore = -CHECKMATE
+    for move in validMoves:
+        gs.makeMove(move)
+        nextMoves = gs.getValidMoves()
+        score = -findMoveNegaMax(gs, nextMoves, depth - 1, -turnMultipler)
+        if score > maxScore:
+            maxScore = score
+            if depth == DEPTH:
+                nextMove = move
+        gs.undoMove()
+    return maxScore
+
+
+def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
+    global nextMove
+    if depth == 0:
+        return turnMultipler * scoreBoard(gs)
+
+    maxScore = -CHECKMATE
+    for move in validMoves:
+        gs.makeMove(move)
+        nextMoves = gs.getValidMoves()
+        score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth - 1, -beta, -alpha,  -turnMultipler)
+        if score > maxScore:
+            maxScore = score
+            if depth == DEPTH:
+                nextMove = move
+        gs.undoMove()
+        if maxScore > alpha: #prunning happend
+            alpha = maxScore
+        if alpha >= beta:
+            break
+    return maxScore
 
 '''Score the board base on the material'''
 
