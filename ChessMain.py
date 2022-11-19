@@ -3,6 +3,7 @@ from tkinter import TRUE
 import pygame as p
 from chess_gem import ChessEngine, SmartMoveFinder
 import sys
+from multiprocessing import Process, Queue
 
 WIDTH = HEIGHT = 512
 DIMENSION = 8
@@ -30,7 +31,7 @@ def drawGameState(screen, gs, validMoves, sqSelected):
 
 def drawBoard(screen):
     global colors
-    colors = [p.Color('white'), p.Color('gray')]
+    colors = [p.Color('white'), p.Color('forestgreen')]
     for r in range(DIMENSION):
         for c in range(DIMENSION):
             color = colors[ ( (r+c) % 2 ) ]
@@ -65,6 +66,9 @@ def main():
     gameOver = False
     playerOne = True#if a human is playing, human play white, AI playing = false
     playerTwo = False#same as above but for black
+    AIThinking = False
+    moveFinderProcess = None
+    moveUndone = False
 
     while running:
         humanTurn = (gs.whiteToMove and playerOne) or(not gs.whiteToMove and playerTwo)
@@ -73,7 +77,7 @@ def main():
                 sys.exit()
             #mouse handler    
             elif e.type == p.MOUSEBUTTONDOWN:
-                if not gameOver and humanTurn:
+                if not gameOver:
                     location = p.mouse.get_pos()#mouse location(x,y)
                     col = location[0] // SQ_SIZE
                     row = location[1] // SQ_SIZE
@@ -83,7 +87,7 @@ def main():
                     else:
                         sqSelected = (row, col)
                         playerClicks.append(sqSelected)
-                    if len(playerClicks) == 2: #after second click
+                    if len(playerClicks) == 2  and humanTurn: #after second click
                         move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board) 
                     #    print(move.getChessNotation())
                         print(len(validMoves))
@@ -107,6 +111,11 @@ def main():
                     moveMade = True
                     animate = False
                     gameOver = False
+                    if AIThinking:
+                        moveFinderProcess.terminate()
+                        AIThinking = False
+                    moveUndone = True
+
                     #validMoves = gs.getValidMoves()
                 if e.key == p.K_r:#reset game
                     gs = ChessEngine.GameState()
@@ -116,18 +125,32 @@ def main():
                     moveMade = False
                     animate = False
                     gameOver = False
+                    if AIThinking:
+                        moveFinderProcess.terminate()
+                        AIThinking = False
+                    moveUndone = True
 
         #AI move Finder
-        if not gameOver and not humanTurn:
+        if not gameOver and not humanTurn and not moveUndone:
             # if gs.whiteToMove:
-                AIMove = SmartMoveFinder.findBestMove(gs, validMoves)
-                if AIMove is None:
-                    AIMove = SmartMoveFinder.findRandomMove(validMoves)
-                gs.makeMove(AIMove)
-                numMove += 1
-                print(AIMove.getChessNotation())
-                moveMade = True
-                animate = True
+                if not AIThinking:
+                    AIThinking = True
+                    print('thinking')
+                    returnQueue = Queue()
+                    moveFinderProcess = Process(target=SmartMoveFinder.findBestMove, args = (gs, validMoves, returnQueue))
+                    moveFinderProcess.start()
+                    # AIMove = SmartMoveFinder.findBestMove(gs, validMoves)
+                if not moveFinderProcess.is_alive():
+                    print('done thinking')
+                    AIMove = returnQueue.get()    
+                    if AIMove is None:
+                        AIMove = SmartMoveFinder.findRandomMove(validMoves)
+                    gs.makeMove(AIMove)
+                    numMove += 1
+                    print(AIMove.getChessNotation())
+                    moveMade = True
+                    animate = True
+                    AIThinking = False
             # else:
             #     AIMove = SmartMoveFinder.findGreedy(gs, validMoves)
             #     if AIMove is None:
@@ -145,6 +168,7 @@ def main():
             validMoves = gs.getValidMoves()
             moveMade = False
             animate = False
+            moveUndone = False
 
 
 
@@ -219,4 +243,5 @@ def drawText(screen, text):
     screen.blit(textObject, textLocation.move(2, 2))
 
 
-main()    
+if __name__ == "__main__":
+    main()

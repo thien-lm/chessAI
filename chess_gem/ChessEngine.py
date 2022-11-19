@@ -117,16 +117,16 @@ class GameState():
 
     def updateCastleRights(self, move):
 
-        # if move.pieceCaptured == "wR":
-        #     if move.endCol == 0: #left rook
-        #         self.currentCastlingRight.wqs = False
-        #     elif move.endCol == 7: #right rook
-        #         self.currentCastlingRight.wks = False
-        # elif move.pieceCaptured == "bR":
-        #     if move.endCol == 0: #left rook
-        #         self.currentCastlingRight.bqs = False
-        #     elif move.endCol == 7: #right rook
-        #         self.currentCastlingRight.bks = False
+        if move.pieceCaptured == "wR":
+            if move.endCol == 0: #left rook
+                self.currentCastlingRight.wqs = False
+            elif move.endCol == 7: #right rook
+                self.currentCastlingRight.wks = False
+        elif move.pieceCaptured == "bR":
+            if move.endCol == 0: #left rook
+                self.currentCastlingRight.bqs = False
+            elif move.endCol == 7: #right rook
+                self.currentCastlingRight.bks = False
 
         if move.pieceMoved == 'wK':
             self.currentCastlingRight.wks = False
