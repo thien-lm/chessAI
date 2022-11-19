@@ -63,7 +63,7 @@ def main():
     sqSelected = () #no quare selected, keep track last  click
     playerClicks = [] # keep track player click
     gameOver = False
-    playerOne = False#if a human is playing, human play white, AI playing = false
+    playerOne = True#if a human is playing, human play white, AI playing = false
     playerTwo = False#same as above but for black
 
     while running:
@@ -119,7 +119,7 @@ def main():
 
         #AI move Finder
         if not gameOver and not humanTurn:
-            if gs.whiteToMove:
+            # if gs.whiteToMove:
                 AIMove = SmartMoveFinder.findBestMove(gs, validMoves)
                 if AIMove is None:
                     AIMove = SmartMoveFinder.findRandomMove(validMoves)
@@ -128,13 +128,15 @@ def main():
                 print(AIMove.getChessNotation())
                 moveMade = True
                 animate = True
-            else:
-                AIMove = SmartMoveFinder.findGreedy(gs, validMoves)
-                gs.makeMove(AIMove)
-                numMove += 1
-                print(AIMove.getChessNotation())
-                moveMade = True
-                animate = True
+            # else:
+            #     AIMove = SmartMoveFinder.findGreedy(gs, validMoves)
+            #     if AIMove is None:
+            #         AIMove = SmartMoveFinder.findRandomMove(validMoves)
+            #     gs.makeMove(AIMove)
+            #     numMove += 1
+            #     print(AIMove.getChessNotation())
+            #     moveMade = True
+            #     animate = True
 
 
         if moveMade:

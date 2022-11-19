@@ -1,7 +1,7 @@
 import random
 
 pieceScore = {'K': 0, 'Q': 10,'R': 5, 'B': 3, 'N': 3, 'p': 1}
-CHECKMATE = 1000
+CHECKMATE = 5
 STALEMATE = 0
 DEPTH = 3
 
@@ -27,7 +27,7 @@ def findGreedy(gs, validMoves):
             opponentMaxScore = -CHECKMATE
             for opponentsMove in opponenstMoves:
                 gs.makeMove(opponentsMove)
-                gs.getValidMoves()
+                #gs.getValidMoves()
                 if gs.checkMate:
                     score =  CHECKMATE
                 elif gs.staleMate:
