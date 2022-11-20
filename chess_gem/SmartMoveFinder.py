@@ -1,76 +1,102 @@
 import random
+import numpy as np
+from easygui import *
+from chess_gem import  ChessEngine
+import ChessMain
 
-pieceScore = {'K': 0, 'Q': 10,'R': 5, 'B': 3, 'N': 3, 'p': 1}
-knightScores = [[1, 1, 1, 1, 1, 1, 1, 1],
-               [1, 2, 2, 2, 2, 2, 2, 1],
-               [1, 2, 3, 3, 3, 3, 1, 1],
-               [1, 2, 3, 4, 4, 3, 2, 1],
-               [1, 2, 3, 4, 4, 3, 2, 1],
-               [1, 2, 3, 3, 3, 3, 1, 1],
-               [1, 2, 2, 2, 2, 2, 2, 1],               
-               [1, 1, 1, 1, 1, 1, 1, 1]]
+pieceScore = {'K': 100, 'Q': 9,'R': 5, 'B': 3, 'N': 3, 'p': 1}
+# knightScores = np.array([[1, 1, 1, 1, 1, 1, 1, 1],
+#                [1, 2, 2, 2, 2, 2, 2, 1],
+#                [1, 2, 3, 3, 3, 3, 1, 1],
+#                [1, 2, 3, 4, 4, 3, 2, 1],
+#                [1, 2, 3, 4, 4, 3, 2, 1],
+#                [1, 2, 3, 3, 3, 3, 1, 1],
+#                [1, 2, 2, 2, 2, 2, 2, 1],               
+#                [1, 1, 1, 1, 1, 1, 1, 1]])
 # scorilize
-knightScores = [[1, 1, 1, 1, 1, 1, 1, 1],
-               [1, 2, 2, 2, 2, 2, 2, 1],
-               [1, 2, 3, 3, 3, 3, 1, 1],
-               [1, 2, 3, 4, 4, 3, 2, 1],
-               [1, 2, 3, 4, 4, 3, 2, 1],
-               [1, 2, 3, 3, 3, 3, 1, 1],
-               [1, 2, 2, 2, 2, 2, 2, 1],               
-               [1, 1, 1, 1, 1, 1, 1, 1]]
+knightScores = np.array([[0.0, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1, 0.0],
+                 [0.1, 0.3, 0.5, 0.5, 0.5, 0.5, 0.3, 0.1],
+                 [0.2, 0.5, 0.6, 0.65, 0.65, 0.6, 0.5, 0.2],
+                 [0.2, 0.55, 0.65, 0.7, 0.7, 0.65, 0.55, 0.2],
+                 [0.2, 0.5, 0.65, 0.7, 0.7, 0.65, 0.5, 0.2],
+                 [0.2, 0.55, 0.6, 0.65, 0.65, 0.6, 0.55, 0.2],
+                 [0.1, 0.3, 0.5, 0.55, 0.55, 0.5, 0.3, 0.1],
+                 [0.0, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1, 0.0]])
 
-bishopScores = [[1, 1, 1, 1, 1, 1, 1, 1],
-               [1, 2, 2, 2, 2, 2, 2, 1],
-               [1, 2, 3, 3, 3, 3, 1, 1],
-               [1, 2, 3, 4, 4, 3, 2, 1],
-               [1, 2, 3, 4, 4, 3, 2, 1],
-               [1, 2, 3, 3, 3, 3, 1, 1],
-               [1, 2, 2, 2, 2, 2, 2, 1],               
-               [1, 1, 1, 1, 1, 1, 1, 1]]
+bishopScores = np.array([[0.0, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.0],
+                 [0.2, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.2],
+                 [0.2, 0.4, 0.5, 0.6, 0.6, 0.5, 0.4, 0.2],
+                 [0.2, 0.5, 0.5, 0.6, 0.6, 0.5, 0.5, 0.2],
+                 [0.2, 0.4, 0.6, 0.6, 0.6, 0.6, 0.4, 0.2],
+                 [0.2, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.2],
+                 [0.2, 0.5, 0.4, 0.4, 0.4, 0.4, 0.5, 0.2],
+                 [0.0, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.0]])
 
-rookScores = [[1, 1, 1, 1, 1, 1, 1, 1],
-               [1, 2, 2, 2, 2, 2, 2, 1],
-               [1, 2, 3, 3, 3, 3, 1, 1],
-               [1, 2, 3, 4, 4, 3, 2, 1],
-               [1, 2, 3, 4, 4, 3, 2, 1],
-               [1, 2, 3, 3, 3, 3, 1, 1],
-               [1, 2, 2, 2, 2, 2, 2, 1],               
-               [1, 1, 1, 1, 1, 1, 1, 1]]
+rookScores = np.array([[0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25],
+               [0.5, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.5],
+               [0.0, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.0],
+               [0.0, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.0],
+               [0.0, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.0],
+               [0.0, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.0],
+               [0.0, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.0],
+               [0.25, 0.25, 0.25, 0.5, 0.5, 0.25, 0.25, 0.25]])
 
-queenScores = [[1, 1, 1, 1, 1, 1, 1, 1],
-               [1, 2, 2, 2, 2, 2, 2, 1],
-               [1, 2, 3, 3, 3, 3, 1, 1],
-               [1, 2, 3, 4, 4, 3, 2, 1],
-               [1, 2, 3, 4, 4, 3, 2, 1],
-               [1, 2, 3, 3, 3, 3, 1, 1],
-               [1, 2, 2, 2, 2, 2, 2, 1],               
-               [1, 1, 1, 1, 1, 1, 1, 1]]
+queenScores = np.array([[0.0, 0.2, 0.2, 0.3, 0.3, 0.2, 0.2, 0.0],
+                [0.2, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.2],
+                [0.2, 0.4, 0.5, 0.5, 0.5, 0.5, 0.4, 0.2],
+                [0.3, 0.4, 0.5, 0.5, 0.5, 0.5, 0.4, 0.3],
+                [0.4, 0.4, 0.5, 0.5, 0.5, 0.5, 0.4, 0.3],
+                [0.2, 0.5, 0.5, 0.5, 0.5, 0.5, 0.4, 0.2],
+                [0.2, 0.4, 0.5, 0.4, 0.4, 0.4, 0.4, 0.2],
+                [0.0, 0.2, 0.2, 0.3, 0.3, 0.2, 0.2, 0.0]])
 
-whitePawnScores = [[1, 1, 1, 1, 1, 1, 1, 1],
-               [1, 2, 2, 2, 2, 2, 2, 1],
-               [1, 2, 3, 3, 3, 3, 1, 1],
-               [1, 2, 3, 4, 4, 3, 2, 1],
-               [1, 2, 3, 4, 4, 3, 2, 1],
-               [1, 2, 3, 3, 3, 3, 1, 1],
-               [1, 2, 2, 2, 2, 2, 2, 1],               
-               [1, 1, 1, 1, 1, 1, 1, 1]]
+whitePawnScores = np.array([[0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8],
+               [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7],
+               [0.3, 0.3, 0.4, 0.5, 0.5, 0.4, 0.3, 0.3],
+               [0.25, 0.25, 0.3, 0.45, 0.45, 0.3, 0.25, 0.25],
+               [0.2, 0.2, 0.2, 0.4, 0.4, 0.2, 0.2, 0.2],
+               [0.25, 0.15, 0.1, 0.2, 0.2, 0.1, 0.15, 0.25],
+               [0.25, 0.3, 0.3, 0.0, 0.0, 0.3, 0.3, 0.25],
+               [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]])
 
-blackPawnScores = [[1, 1, 1, 1, 1, 1, 1, 1],
-               [1, 2, 2, 2, 2, 2, 2, 1],
-               [1, 2, 3, 3, 3, 3, 1, 1],
-               [1, 2, 3, 4, 4, 3, 2, 1],
-               [1, 2, 3, 4, 4, 3, 2, 1],
-               [1, 2, 3, 3, 3, 3, 1, 1],
-               [1, 2, 2, 2, 2, 2, 2, 1],               
-               [1, 1, 1, 1, 1, 1, 1, 1]]
+blackPawnScores = np.array([ [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
+              [0.25, 0.3, 0.3, 0.0, 0.0, 0.3, 0.3, 0.25],
+               [0.25, 0.15, 0.1, 0.2, 0.2, 0.1, 0.15, 0.25],
+               [0.2, 0.2, 0.2, 0.4, 0.4, 0.2, 0.2, 0.2],
+               [0.25, 0.25, 0.3, 0.45, 0.45, 0.3, 0.25, 0.25],
+               [0.3, 0.3, 0.4, 0.5, 0.5, 0.4, 0.3, 0.3],
+                [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7],
+                [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]
+              ])
 
 piecePosistionScores = {'N': knightScores, 'B': bishopScores, 'Q': queenScores, 'R': rookScores, 'bp': blackPawnScores, 'wp': whitePawnScores}
 
                
 
-CHECKMATE = 5
+CHECKMATE = 500
 STALEMATE = 0
-DEPTH = 2
+COUNT = 0
+# DEPTH = 3
+# def defineDepth(): 
+#     # message to be displayed
+#     text = "Enter depth lv !!"
+        
+#         # window title
+#     title = "thien dzai sieu cap vjppr0"
+        
+#         # default text
+#     d_text = "3"
+        
+#         # creating a enter box
+#     output = enterbox(text, title, d_text)
+        
+#         # title for the message box
+#     title = "chose level"
+        
+#         # creating a message
+#     global DEPTH
+#     DEPTH = int(output)
+# print(DEPTH)
 
 def findRandomMove(validMoves):
     return validMoves[random.randint(0, len(validMoves) - 1)]
@@ -111,14 +137,16 @@ def findGreedy(gs, validMoves):
         gs.undoMove()
     return bestPlayerMove
 
-def findBestMove(gs, validMoves, returnQueue):
+def findBestMove(gs, validMoves, DEPTH, returnQueue):
     global nextMove
     nextMove = None
+    global COUNT 
+    COUNT = 0
     random.shuffle(validMoves)
     #findMoveNegaMax(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1 )
     #findMoveMinMax(gs, validMoves, DEPTH, gs.whiteToMove )
     findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1)
-    print(nextMove)
+    print(COUNT)
     returnQueue.put(nextMove)
 
 
@@ -202,6 +230,8 @@ def findMoveNegaMax(gs, validMoves, depth, turnMultipler):
 
 
 def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
+    global COUNT
+    COUNT += 1
     global nextMove
     if depth == 0:
         return turnMultipler * scoreBoard(gs)
@@ -213,7 +243,7 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
         score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth - 1, -beta, -alpha,  -turnMultipler)
         if score > maxScore:
             maxScore = score
-            if depth == DEPTH:
+            if depth == gs.DEPTH:
                 nextMove = move
         gs.undoMove()
         if maxScore > alpha: #prunning happend

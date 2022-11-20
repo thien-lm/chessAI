@@ -4,6 +4,7 @@ import pygame as p
 from chess_gem import ChessEngine, SmartMoveFinder
 import sys
 from multiprocessing import Process, Queue
+from easygui import *
 
 WIDTH = HEIGHT = 512
 DIMENSION = 8
@@ -45,11 +46,16 @@ def drawPieces(screen, board):
                 screen.blit(IMAGES[piece], p.Rect(c*SQ_SIZE, r* SQ_SIZE, SQ_SIZE, SQ_SIZE)) 
 
 def main():
+
+
+    
+    # creating a message
     p.init()
     screen = p.display.set_mode((WIDTH, HEIGHT))
     clock = p.time.Clock()
     screen.fill(p.Color('white'))
     gs = ChessEngine.GameState()
+    gs.setDepth()
 
     validMoves = gs.getValidMoves()
     global moveMade
@@ -94,7 +100,7 @@ def main():
                         for i in range(len(validMoves)):
                             if move == validMoves[i]:
                                 gs.makeMove(validMoves[i])
-                            #print('Valid Move')
+                                print('Valid Move')
                                 if(move.isCastleMove == True): print('this is a valid move')
                                 moveMade = True
                                 animate = True
@@ -107,7 +113,7 @@ def main():
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z:#press z to undo
                     gs.undoMove()
-                    print('undo')
+                    #print('undo')
                     moveMade = True
                     animate = False
                     gameOver = False
@@ -135,19 +141,19 @@ def main():
             # if gs.whiteToMove:
                 if not AIThinking:
                     AIThinking = True
-                    print('thinking')
+                    #print('thinking')
                     returnQueue = Queue()
-                    moveFinderProcess = Process(target=SmartMoveFinder.findBestMove, args = (gs, validMoves, returnQueue))
+                    moveFinderProcess = Process(target=SmartMoveFinder.findBestMove, args = (gs, validMoves, gs.DEPTH, returnQueue))
                     moveFinderProcess.start()
                     # AIMove = SmartMoveFinder.findBestMove(gs, validMoves)
                 if not moveFinderProcess.is_alive():
-                    print('done thinking')
+                    #print('done thinking')
                     AIMove = returnQueue.get()    
                     if AIMove is None:
                         AIMove = SmartMoveFinder.findRandomMove(validMoves)
                     gs.makeMove(AIMove)
                     numMove += 1
-                    print(AIMove.getChessNotation())
+                    #print(AIMove.getChessNotation())
                     moveMade = True
                     animate = True
                     AIThinking = False
@@ -176,7 +182,7 @@ def main():
 
         if gs.checkMate:
             gameOver = True
-            print(numMove)
+            #print(numMove)
             if gs.whiteToMove:
                 drawText(screen, "black wins by checkmate")
             else:
@@ -215,7 +221,7 @@ def animateMove(move, screen, board, clock):
     #coords = [] #list of coord that the animation will move through
     dR = move.endRow - move.startRow
     dC = move.endCol - move.startCol
-    framesPerSquare = 10#frames to move one square
+    framesPerSquare = 5#frames to move one square
     frameCount = (abs(dR) + abs(dC)) * framesPerSquare
     for frame in range(frameCount + 1):
         r, c = ((move.startRow + dR*frame/frameCount, move.startCol + dC*frame/frameCount))
@@ -242,6 +248,29 @@ def drawText(screen, text):
     textObject = font.render(text, 0, p.Color('Black'))
     screen.blit(textObject, textLocation.move(2, 2))
 
+# def setDepth():
+#     text = "Enter depth lv !!"
+    
+#     # window title
+#     title = "thien dzai sieu cap vjppr0"
+    
+#     # default text
+#     d_text = "3"
+    
+#     # creating a enter box
+#     output = enterbox(text, title, d_text)
+    
+#     # title for the message box
+#     title = "chose level"
+    
+#     # creating a message
+#     DEPTH = int(output)   
+#     return DEPTH
+
+
+    
+
 
 if __name__ == "__main__":
+    
     main()
