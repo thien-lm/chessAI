@@ -138,6 +138,7 @@ def findGreedy(gs, validMoves):
     return bestPlayerMove
 
 def findBestMove(gs, validMoves, DEPTH, returnQueue):
+    # print(gs.blackKingLocation)
     global nextMove
     nextMove = None
     global COUNT 

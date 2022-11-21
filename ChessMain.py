@@ -46,8 +46,6 @@ def drawPieces(screen, board):
                 screen.blit(IMAGES[piece], p.Rect(c*SQ_SIZE, r* SQ_SIZE, SQ_SIZE, SQ_SIZE)) 
 
 def main():
-
-
     
     # creating a message
     p.init()
@@ -70,7 +68,7 @@ def main():
     sqSelected = () #no quare selected, keep track last  click
     playerClicks = [] # keep track player click
     gameOver = False
-    playerOne = False#if a human is playing, human play white, AI playing = false
+    playerOne = True#if a human is playing, human play white, AI playing = false
     playerTwo = False#same as above but for black
     AIThinking = False
     moveFinderProcess = None
@@ -158,7 +156,8 @@ def main():
                     animate = True
                     AIThinking = False
             else:
-                AIMove = SmartMoveFinder.findGreedy(gs, validMoves)
+                print(len(validMoves))
+                AIMove = None
                 if AIMove is None:
                     AIMove = SmartMoveFinder.findRandomMove(validMoves)
                 gs.makeMove(AIMove)
@@ -221,7 +220,7 @@ def animateMove(move, screen, board, clock):
     #coords = [] #list of coord that the animation will move through
     dR = move.endRow - move.startRow
     dC = move.endCol - move.startCol
-    framesPerSquare = 5#frames to move one square
+    framesPerSquare = 1#frames to move one square
     frameCount = (abs(dR) + abs(dC)) * framesPerSquare
     for frame in range(frameCount + 1):
         r, c = ((move.startRow + dR*frame/frameCount, move.startCol + dC*frame/frameCount))

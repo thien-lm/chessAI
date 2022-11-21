@@ -15,14 +15,14 @@ class GameState():
         # bR = black Rock
         # wR = white Rock
         self.board = np.array([
-            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
-            ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
+            ["bR", "bN", "bB", "--", "bK", "--", "--", "bR"],
+            ['bp', 'bp', 'bp', 'bp', '--', 'bp', 'bp', 'bp'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
+            ['--', '--', '--', '--', 'wQ', '--', '--', '--'],
+            ['--', '--', '--', '--', 'wQ', '--', '--', '--'],
+            ['wp', '--', 'wp', '--', 'wQ', 'wp', '--', 'wp'],
+            ["wR", "wQ", "wB", "wQ", "wK", "wB", "wQ", "wR"]
         ])
 
         # self.board = [
@@ -36,7 +36,7 @@ class GameState():
         #     ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
         # ]
         self.moveFunction = {'p': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves, 'B': self.getBishopMoves, 'K': self.getKingMoves, 'Q': self.getQueenMoves}
-        self.whiteToMove =  True
+        self.whiteToMove =  False
         self.moveLog = [] 
         self.DEPTH = 0
         self.whiteKingLocation = (7, 4)
@@ -52,28 +52,24 @@ class GameState():
         self.board[move.endRow][move.endCol] = move.pieceMoved
         self.moveLog.append(move) #log the move to display it later
         self.whiteToMove = not self.whiteToMove #switch turn
+        # if(self.in_Check):
+        #     print('check')
         if move.pieceMoved == 'wK':
             self.whiteKingLocation = (move.endRow, move.endCol)
-            if move.isCastleMove:
-                if move.endCol - move.startCol == 2:
-                    self.board[move.endRow][move.endCol - 1] = self.board[move.endRow][move.endCol + 1]
-                    self.board[move.endRow][move.endCol + 1] = '--'
-
-                else:
-                    self.board[move.endRow][move.endCol + 1] = self.board[move.endRow][move.endCol - 2]
-                    self.board[move.endRow][move.endCol -2 ] = '--'
-
-
-        elif move.pieceMoved == 'bK':
+        elif move.pieceMoved =='bK':
             self.blackKingLocation = (move.endRow, move.endCol)
-            if move.isCastleMove:
-                if move.endCol - move.startCol == 2:
-                    self.board[move.endRow][move.endCol - 1] = self.board[move.endRow][move.endCol + 1]
-                    self.board[move.endRow][move.endCol + 1] = '--'
 
-                else:
-                    self.board[move.endRow][move.endCol + 1] = self.board[move.endRow][move.endCol - 2]
-                    self.board[move.endRow][move.endCol -2 ] = '--'
+
+        if move.isCastleMove:
+            if move.endCol - move.startCol == 2:
+                self.board[move.endRow][move.endCol - 1] = self.board[move.endRow][move.endCol + 1]
+                self.board[move.endRow][move.endCol + 1] = '--'
+
+            else:
+                self.board[move.endRow][move.endCol + 1] = self.board[move.endRow][move.endCol - 2]
+                self.board[move.endRow][move.endCol -2 ] = '--'
+
+
         # i = 0
         # print(i)
         # if move.isPawnPromotion and  move.pieceMoved == 'wp':
@@ -229,9 +225,9 @@ class GameState():
         else: #not in check - all moves are fine
             moves = self.getAllPossibleMoves()  
             if self.whiteToMove:
-                self.getCastleMoves(7, 4, moves)
+                self.getCastleMoves(self.whiteKingLocation[0], self.whiteKingLocation[1], moves)
             else:
-                self.getCastleMoves(0, 4, moves)
+                self.getCastleMoves(self.blackKingLocation[0], self.blackKingLocation[1], moves)
 
         if len(moves) == 0:
             if self.inCheck():
@@ -241,7 +237,7 @@ class GameState():
         else:
             self.checkMate = False
             self.staleMate = False
-            
+        self.currentCastlingRight = tempCastleRights    
         return moves
 
 
@@ -347,7 +343,7 @@ class GameState():
                 endCol = startCol + d[1] *i
                 if 0  <= endRow < 8 and 0 <= endCol < 8:
                     endPiece = self.board[endRow][endCol]
-                    if endPiece[0] == allyColor:
+                    if endPiece[0] == allyColor and endPiece[1]!='K':
                         if possiblePin == ():
                             possiblePin = (endRow, endCol, d[0], d[1]) 
                         else:
@@ -576,8 +572,8 @@ class GameState():
                         self.whiteKingLocation = (end_row, end_col)
                     else:
                         self.blackKingLocation = (end_row, end_col)
-                    in_check, pins, checks = self.checkForPinsAndChecks()
-                    if not in_check:
+                    in_Check, pins, checks = self.checkForPinsAndChecks()
+                    if not in_Check:
                         moves.append(Move((row, col), (end_row, end_col), self.board))
                     # place king back on original location
                     if ally_color == "w":
