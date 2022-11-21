@@ -256,6 +256,7 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
 
 def sortMove(gs, moveList):
     # random.shuffle(moveList)
+    moveList = moveList[::-1]
     score = []
     for i in range(len(moveList)):
         gs.makeMove(moveList[i])
