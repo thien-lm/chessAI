@@ -73,7 +73,7 @@ piecePosistionScores = {'N': knightScores, 'B': bishopScores, 'Q': queenScores, 
 
                
 
-CHECKMATE = 500000
+CHECKMATE = 50000
 STALEMATE = 0
 COUNT = 0
 # DEPTH = 3
@@ -194,8 +194,8 @@ def scoreBoard(gs):
         return STALEMATE
 
     score = 0
-    for row in range(len(gs.board)):
-        for col in range(len(gs.board[row])):
+    for row in range(8):
+        for col in range(8):
             square = gs.board[row][col]
             if square != "--":
                 #score it possitionally
@@ -235,7 +235,7 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
     global nextMove
     if depth == 0:
         return turnMultipler * scoreBoard(gs)
-    validMoves = sortMove(gs, validMoves)
+    validMoves = sortMove(gs, validMoves, turnMultipler)
     maxScore = -CHECKMATE
     for move in validMoves:
         gs.makeMove(move)
@@ -254,13 +254,13 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
 
 '''Score the board base on the material'''
 
-def sortMove(gs, moveList):
+def sortMove(gs, moveList, turnMultipler):
     # random.shuffle(moveList)
-    moveList = moveList[::-1]
+    moveList = moveList[::turnMultipler]
     score = []
     for i in range(len(moveList)):
         gs.makeMove(moveList[i])
-        score.append(scoreBoard(gs))
+        score.append(turnMultipler*scoreBoard(gs))
         gs.undoMove()
     newListA = []
     newListB = moveList
