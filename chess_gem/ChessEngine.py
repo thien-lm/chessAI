@@ -15,9 +15,9 @@ class GameState():
         # bR = black Rock
         # wR = white Rock
         self.board = np.array([
-            ["--", "--", "--", "wN", "--", "--", "--", "--"],
+            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
+            ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', 'wN', '--', 'bK', '--', 'wN'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
@@ -35,7 +35,7 @@ class GameState():
         #     ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
         #     ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
         # ]
-        self.moveFunction = {'p': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves, 'B': self.getBishopMoves, 'K': self.getKingMoves, 'Q': self.getQueenMoves}
+        self.moveFunction = {  'N': self.getKnightMoves, 'R': self.getRookMoves,'Q': self.getQueenMoves, 'B': self.getBishopMoves,'p': self.getPawnMoves, 'K': self.getKingMoves }
         self.whiteToMove =  True
         self.moveLog = [] 
         self.DEPTH = 0
@@ -229,9 +229,7 @@ class GameState():
                         if not (moves[i].endRow, moves[i].endCol) in valid_squares: #move doesn't block or capture piece
                             moves.remove(moves[i])
             else: #double check, king has to move
-                print('abc: ', len(moves))
                 self.getKingMoves(king_row, king_col, moves)
-                print('def: ', len(moves))
         else: #not in check - all moves are fine
             moves = self.getAllPossibleMoves()  
             if self.whiteToMove:
@@ -363,7 +361,7 @@ class GameState():
 
                         if(0 <= j <= 3 and enemy_type == 'R') or \
                             (4 <= j <= 7 and enemy_type == 'B') or \
-                                (i == 1 and type == 'p' and ((enemyColor == 'w' and 6 <= j <= 7) or (enemyColor == 'b' and 4 <= j <= 5))) or \
+                                (i == 1 and enemy_type == 'p' and ((enemyColor == 'w' and 6 <= j <= 7) or (enemyColor == 'b' and 4 <= j <= 5))) or \
                                     (enemy_type == 'Q') or (i == 1 and enemy_type == 'K'):
                             if possiblePin == ():
                                 in_Check = True
