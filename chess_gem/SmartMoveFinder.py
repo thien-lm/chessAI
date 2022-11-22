@@ -148,6 +148,30 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     #print(SUM/number_of_move)
     returnQueue.put(nextMove)
 
+def findBestMoveNoneThread(gs, validMoves, DEPTH):
+    # print(gs.blackKingLocation)
+    global SUM
+    global nextMove
+    nextMove = None
+    global number_of_move 
+    number_of_move = 0
+    number_of_move += 1
+    global COUNT 
+
+    COUNT = 0
+    global start_time
+    start_time = time.time()
+    #random.shuffle(validMoves)
+    #findMoveNegaMax(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1 )
+    #findMoveMinMax(gs, validMoves, DEPTH, gs.whiteToMove )
+    findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1)
+    SUM += COUNT
+    print("all node take: " + "--- %s seconds ---" % (time.time() - start_time))
+    print(COUNT)
+    #print(SUM/number_of_move)
+    return nextMove
+
+
 
 # def scoreBoard(gs):
 
@@ -292,7 +316,7 @@ def sortMove(gs, moveList, turnMultipler):
     newListB = list(moveList)
     list_loca = []
     if turnMultipler == 1:
-        for i in range(min(len(moveList), 6)):
+        for i in range(min(len(moveList), 8)):
             maxScore = -1000000
             maxLocation = 0
             global checkJ
@@ -309,7 +333,7 @@ def sortMove(gs, moveList, turnMultipler):
 
 
     if turnMultipler == -1:
-        for i in range(min(len(moveList), 6)):
+        for i in range(min(len(moveList), 8)):
             maxScore = 1000000
             maxLocation = 0
             checkJ = False 
