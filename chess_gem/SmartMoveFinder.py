@@ -5,8 +5,7 @@ from chess_gem import  ChessEngine
 import ChessMain
 import time
 
-
-pieceScore = {'K': 100000, 'Q': 900,'R': 500, 'B': 300, 'N': 300, 'p': 100}
+pieceScore = {'K': 0, 'Q': 900,'R': 500, 'B': 300, 'N': 300, 'p': 100}
 # knightScores = np.array([[1, 1, 1, 1, 1, 1, 1, 1],
 #                [1, 2, 2, 2, 2, 2, 2, 1],
 #                [1, 2, 3, 3, 3, 3, 1, 1],
@@ -147,30 +146,6 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     print(COUNT)
     #print(SUM/number_of_move)
     returnQueue.put(nextMove)
-
-def findBestMoveNoneThread(gs, validMoves, DEPTH):
-    # print(gs.blackKingLocation)
-    global SUM
-    global nextMove
-    nextMove = None
-    global number_of_move 
-    number_of_move = 0
-    number_of_move += 1
-    global COUNT 
-
-    COUNT = 0
-    global start_time
-    start_time = time.time()
-    #random.shuffle(validMoves)
-    #findMoveNegaMax(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1 )
-    #findMoveMinMax(gs, validMoves, DEPTH, gs.whiteToMove )
-    findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1)
-    SUM += COUNT
-    print("all node take: " + "--- %s seconds ---" % (time.time() - start_time))
-    print(COUNT)
-    #print(SUM/number_of_move)
-    return nextMove
-
 
 
 # def scoreBoard(gs):
