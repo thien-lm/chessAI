@@ -1,5 +1,5 @@
 my nth project in 5th semester
-work with following eddie sharik chanel to build 
+work with following eddie sharik chanel: https://www.youtube.com/watch?v=ZV9vWiBHWIQ&list=PLBwF487qi8MGU81nDGaeNE1EnNEPYWKY_  to build and some time i work with my idea
 
 PRERESQUIST:<br>
 python 3<br>
@@ -14,5 +14,6 @@ todo:
 <br>-store board state to avoid re-calcuate valid move twice each move
 
 <br> how to run:
-<br> -set up python enviroment
-<br> download packages: pygame, easygui, chess: https://pypi.org/
+<br>-set up python enviroment
+<br>-download packages: pygame, easygui, chess: https://pypi.org/
+<br>-run ChessMain.py and enjoy the game 
