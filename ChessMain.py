@@ -6,6 +6,8 @@ import sys
 from multiprocessing import Process, Queue
 from easygui import *
 
+
+
 WIDTH = HEIGHT = 512
 DIMENSION = 8
 SQ_SIZE = HEIGHT//DIMENSION
@@ -68,7 +70,7 @@ def main():
     sqSelected = () #no quare selected, keep track last  click
     playerClicks = [] # keep track player click
     gameOver = False
-    playerOne = True#if a human is playing, human play white, AI playing = false
+    playerOne = False#if a human is playing, human play white, AI playing = false
     playerTwo = False#same as above but for black
     AIThinking = False
     moveFinderProcess = None
@@ -156,7 +158,8 @@ def main():
                     animate = True
                     AIThinking = False
             else:
-                print(len(validMoves))
+                AIMove = SmartMoveFinder.findGreedy(gs, validMoves)
+
                 AIMove = None
                 if AIMove is None:
                     AIMove = SmartMoveFinder.findRandomMove(validMoves)
