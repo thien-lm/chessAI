@@ -157,15 +157,17 @@ def main():
                     moveMade = True
                     animate = True
                     AIThinking = False
-            # else:
-            #     AIMove = SmartMoveFinder.findGreedy(gs, validMoves)
-            #     if AIMove is None:
-            #         AIMove = SmartMoveFinder.findRandomMove(validMoves)
-            #     gs.makeMove(AIMove)
-            #     numMove += 1
-            #     print(AIMove.getChessNotation())
-            #     moveMade = True
-            #     animate = True
+            else:
+                AIMove = SmartMoveFinder.findGreedy(gs, validMoves)
+
+                AIMove = None
+                if AIMove is None:
+                    AIMove = SmartMoveFinder.findRandomMove(validMoves)
+                gs.makeMove(AIMove)
+                numMove += 1
+                print(AIMove.getChessNotation())
+                moveMade = True
+                animate = True
 
 
         if moveMade:
