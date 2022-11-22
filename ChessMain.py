@@ -6,6 +6,8 @@ import sys
 from multiprocessing import Process, Queue
 from easygui import *
 
+
+
 WIDTH = HEIGHT = 512
 DIMENSION = 8
 SQ_SIZE = HEIGHT//DIMENSION
@@ -46,8 +48,6 @@ def drawPieces(screen, board):
                 screen.blit(IMAGES[piece], p.Rect(c*SQ_SIZE, r* SQ_SIZE, SQ_SIZE, SQ_SIZE)) 
 
 def main():
-
-
     
     # creating a message
     p.init()
@@ -157,15 +157,15 @@ def main():
                     moveMade = True
                     animate = True
                     AIThinking = False
-            else:
-                AIMove = SmartMoveFinder.findGreedy(gs, validMoves)
-                if AIMove is None:
-                    AIMove = SmartMoveFinder.findRandomMove(validMoves)
-                gs.makeMove(AIMove)
-                numMove += 1
-                print(AIMove.getChessNotation())
-                moveMade = True
-                animate = True
+            # else:
+            #     AIMove = SmartMoveFinder.findGreedy(gs, validMoves)
+            #     if AIMove is None:
+            #         AIMove = SmartMoveFinder.findRandomMove(validMoves)
+            #     gs.makeMove(AIMove)
+            #     numMove += 1
+            #     print(AIMove.getChessNotation())
+            #     moveMade = True
+            #     animate = True
 
 
         if moveMade:
@@ -221,7 +221,7 @@ def animateMove(move, screen, board, clock):
     #coords = [] #list of coord that the animation will move through
     dR = move.endRow - move.startRow
     dC = move.endCol - move.startCol
-    framesPerSquare = 5#frames to move one square
+    framesPerSquare = 1#frames to move one square
     frameCount = (abs(dR) + abs(dC)) * framesPerSquare
     for frame in range(frameCount + 1):
         r, c = ((move.startRow + dR*frame/frameCount, move.startCol + dC*frame/frameCount))
