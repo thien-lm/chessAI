@@ -13,6 +13,7 @@ todo:
 <br>-fix checkmate bug: stime knight (or some piece else) can kill King without checkmate nofication
 <br>-store board state to avoid re-calcuate valid move twice each move
 <br>-Calculate both players moves given a position
+<br>-Quiescence Search: https://www.chessprogramming.org/Quiescence_Search
 
 <br> how to run:
 <br>-set up python enviroment
