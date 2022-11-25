@@ -285,7 +285,7 @@ def sortMove(gs, moveList, turnMultipler):
     score = []
     for i in range(len(moveList)):
         gs.makeMove(moveList[i])
-        score.append((scoreBoard(gs))#10000 node of scorematerial faster than 10k node scoreboard
+        score.append(scoreBoard(gs))#10000 node of scorematerial faster than 10k node scoreboard
         gs.undoMove()
     newListA = []
     newListB = list(moveList)
