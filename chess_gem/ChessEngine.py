@@ -92,6 +92,9 @@ class GameState():
         self.updateCastleRights(move)
         self.castleRightsLog.append(CastleRights(self.currentCastlingRight.wks, self.currentCastlingRight.bks, self.currentCastlingRight.wqs, self.currentCastlingRight.bqs))
 
+        # if(move.isCaptureMove):
+        #     print('this is a capture move')
+
     def setDepth(self):
         text = "Enter depth lv !!"
         
@@ -245,7 +248,15 @@ class GameState():
         else:
             self.checkMate = False
             self.staleMate = False
-        self.currentCastlingRight = tempCastleRights    
+        self.currentCastlingRight = tempCastleRights
+        
+        self.capturedMove = []
+        self.nonCapturedMove = []
+        for move in moves:
+            if move.isCaptureMove:
+                self.capturedMove.append(move) 
+            else:
+                self.nonCapturedMove.append(move)
         return moves
 
 
@@ -311,8 +322,6 @@ class GameState():
             if move.endRow == r and move.endCol == c: #sqr is under attack
                 return True
         return False
-
-
 
     '''
     all moves without check

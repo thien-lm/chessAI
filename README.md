@@ -12,3 +12,5 @@ todo:
 <br>-Algorithm
 <br>-fix checkmate bug: stime knight (or some piece else) can kill King without checkmate nofication
 <br>-store board state to avoid re-calcuate valid move twice each move
+
+<br>-for better heuristic function: https://www.youtube.com/watch?v=2Go0IPVoTtY&t=13s&ab_channel=LogicCrazyChess 

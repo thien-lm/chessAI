@@ -111,7 +111,7 @@ def findGreedy(gs, validMoves):
                     score =  CHECKMATE
                 elif gs.staleMate:
                     score = STALEMATE
-                else: score = -turnMultipler*scoreMaterial(gs.board)
+                else: score = -turnMultipler*scoreBoard(gs)
 
                 if score > opponentMaxScore:
                     opponentMaxScore = score
@@ -137,7 +137,7 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     COUNT = 0
     global start_time
     start_time = time.time()
-    #random.shuffle(validMoves)
+    #random.shuffle(validMoves)#shuffle make it less efficent but to make move non repeated
     #findMoveNegaMax(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1 )
     #findMoveMinMax(gs, validMoves, DEPTH, gs.whiteToMove )
     findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1)
@@ -147,81 +147,40 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     #print(SUM/number_of_move)
     returnQueue.put(nextMove)
 
+#copy from quiescence search post of chessprogramming.org
 
-# def scoreBoard(gs):
+# a slimmed down version of alpha-beta that only searches capturing moves, and that allows the search to stop if the current evaluation is already good enough for a fail high
+def Quiesce(alpha, beta, gs, turnMultipler): 
+    # if len(validMoves) == 0:
+    #     return turnMultipler * scoreBoard(gs)  
 
-#     if gs.checkMate:
-#         if gs.whiteToMove:
-#             return -CHECKMATE#blackwin
-#         else:
-#             return CHECKMATE
-#     elif gs.staleMate:
-#         return STALEMATE
+    score = scoreBoard(gs)*turnMultipler
 
-#     score = 0
-#     for row in range(8):
-#         for col in range(8):
-#             square = gs.board[row][col]
-#             if square != "--":
-#                 #score it possitionally
-#                 piecePosistionScore = 0
-#                 if square[1] != "K":
-#                     if square[1] == 'p':
-#                         piecePosistionScore = piecePosistionScores[square][row][col]
-#                     else:
-#                         piecePosistionScore = piecePosistionScores[square[1]][row][col]
-#                 if square[0] == 'w':
-#                     score += pieceScore[square[1]] + piecePosistionScore
-#                 elif square[0] == 'b':
-#                     score -= pieceScore[square[1]] + piecePosistionScore
-#     return score
-
-# def scoreBoard(game_state):
-    """
-    Score the board. A positive score is good for white, a negative score is good for black.
-    """
-    # if game_state.checkMate:
-    #     if game_state.whiteToMove:
-    #         return -CHECKMATE  # black wins
-    #     else:
-    #         return CHECKMATE  # white wins
-    # elif game_state.staleMate:
-    #     return STALEMATE
-    # score = 0
-    # is_endgame = False
-    # white_has_queen = False
-    # black_has_queen = False
-    # white_additional_pieces = 0
-    # black_additional_pieces = 0
-    # for row in game_state.board:
-    #     for piece in row:
-    #         if piece == "wQ":
-    #             white_has_queen = True
-    #         if piece == "bQ":
-    #             black_has_queen = True
-    #         if piece == "wR" or piece == "wB" or piece == "wN":
-    #             white_additional_pieces += 1
-    #         if piece == "bR" or piece == "bB" or piece == "bN":
-    #             black_additional_pieces += 1
-    # if (not white_has_queen and not black_has_queen) or (white_has_queen and white_additional_pieces < 2) or (
-    #         black_has_queen and black_additional_pieces < 2):
-    #     is_endgame = True
-
-    # for row in range(len(game_state.board)):
-    #     for col in range(len(game_state.board[row])):
-    #         piece = game_state.board[row][col]
-    #         if piece != "--":
-    #             piece_position_score = 0
-    #             if piece[1] != "K":
-    #                 piece_position_score = piecePosistionScores[piece][row][col]
-    #             if piece[0] == "w":
-    #                 score += pieceScore[piece[1]] + piece_position_score
-    #             if piece[0] == "b":
-    #                 score -= pieceScore[piece[1]] + piece_position_score
-
-    # return score
-
-
+    # if stand_pat > alpha: #prunning happend
+    #     alpha = stand_pat
+    #     #break do khong the tim duoc node tot hon trong nhanh do    
+    # if alpha >= beta:
+    #     return beta
+    if score >= beta:
+        return score
+    
+    # if len(gs.capturedMove) == 0:
+    #     return turnMultipler * scoreBoard(gs) 
+    print('before: ', len(gs.capturedMove))
+    for move in gs.capturedMove:
+        gs.makeMove(move)
+        gs.getValidMoves()
+        print('after: ', len(gs.capturedMove))
+        score = -Quiesce(-beta, -alpha, gs, -turnMultipler)#max(a, b) = min(-a, -b) = -max(-a, -b)
+        gs.undoMove()
+        #dat alpha bang gia tri max score
+        if score > alpha: #prunning happend
+            alpha = score
+        #break do khong the tim duoc node tot hon trong nhanh do    
+        if alpha >= beta:
+            break
+        #backtracking len thi moi co gia tri cua alpha
+    return score
 
 
 def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
@@ -231,23 +190,30 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
     # if COUNT == 1000:
     #     print("1000 node take: " + "--- %s seconds ---" % (time.time() - start_time))
     global nextMove
-    if depth == 0 or len(validMoves) == 0:
-        return turnMultipler * scoreBoard(gs)
+    if depth == 0:#implement quiescense search
+        # print('the length of captured move is: ', len(gs.capturedMove))
+        return Quiesce(alpha, beta, gs, turnMultipler)
+        return turnMultipler * scoreBoard(gs)  #sao cho scoreboard luon duong
+
+
     validMoves = sortMove(gs, validMoves, turnMultipler)
     maxScore = -CHECKMATE
     for move in validMoves:
         gs.makeMove(move)
         nextMoves = gs.getValidMoves()
         score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth - 1, -beta, -alpha,  -turnMultipler)#max(a, b) = min(-a, -b) = -max(-a, -b)
-        if score > maxScore:
+        if score > maxScore:#tang gia tri score len cao nhat co the, xac lap buoc di theo score do
             maxScore = score
             if depth == gs.DEPTH:
                 nextMove = move
         gs.undoMove()
+        #dat alpha bang gia tri max score
         if maxScore > alpha: #prunning happend
             alpha = maxScore
+        #break do khong the tim duoc node tot hon trong nhanh do    
         if alpha >= beta:
             break
+        #backtracking len thi moi co gia tri cua alpha
     return maxScore
 
 '''Score the board base on the material'''
@@ -285,7 +251,7 @@ def sortMove(gs, moveList, turnMultipler):
     score = []
     for i in range(len(moveList)):
         gs.makeMove(moveList[i])
-        score.append(scoreMaterial(gs.board))#10000 node of scorematerial faster than 10k node scoreboard
+        score.append(scoreBoard(gs))#10000 node of scorematerial faster than 10k node scoreboard
         gs.undoMove()
     newListA = []
     newListB = list(moveList)
@@ -332,58 +298,6 @@ def sortMove(gs, moveList, turnMultipler):
     return newListA + newListB
 
 
-    # if turnMultipler == 1:
-    #     for i in range(min(len(moveList), 6)):
-    #         maxScore = -1000000
-    #         maxLocation = 0
-    #         global checkJ
-    #         checkJ = False 
-    #         for j in range(len(moveList)):
-    #             if score[j] > maxScore:
-    #                 checkJ = True
-    #                 maxScore = score[j]
-    #                 maxLocation = j
-    #         score[maxLocation] = -1000000
-    #         if checkJ:
-    #             newListA.append(moveList[maxLocation])
-    #             newListB.pop(maxLocation)
-
-    # if turnMultipler == -1:
-    #     for i in range(min(len(moveList), 6)):
-    #         maxScore = 1000000
-    #         maxLocation = 0
-    #         checkJ = False 
-    #         for j in range(len(moveList)):
-    #             if score[j] < maxScore:
-    #                 checkJ = True
-    #                 maxScore = score[j]
-    #                 maxLocation = j
-    #         score[maxLocation] = 1000000
-    #         if checkJ:
-    #             newListA.append(moveList[maxLocation])
-    #             newListB.pop(maxLocation)
-
-    # return newListA + newListB
-
-
-    #if turnMultipler == 1:
-    # for i in range(min(len(moveList), 6)):
-    #     maxScore = -1000000
-    #     maxLocation = 0
-    #     global checkJ
-    #     checkJ = False 
-    #     for j in range(len(moveList)):
-    #         if score[j] > maxScore:
-    #             checkJ = True
-    #             maxScore = score[j]
-    #             maxLocation = j
-    #     score[maxLocation] = -1000000
-    #     if checkJ:
-    #         newListA.append(moveList[maxLocation])
-    #         newListB.pop(maxLocation)
-
-    #     # if turnMultipler == 1: 
-    # return newListA + newListB
 def scoreMaterial(board):
 
     score = 0

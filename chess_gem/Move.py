@@ -4,10 +4,11 @@ class Move():
     rowsToRanks = {v: k for k, v in ranksToRows.items()}
     filesToCols = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
     colsToFiles = {v: k for k, v in filesToCols.items()}
-    def __init__(self, startSq, endSq, board, is_enpassant_move = False, isCastleMove = False):
+    def __init__(self, startSq, endSq, board, is_enpassant_move = False, isCastleMove = False, isCaptureMove = False):
         self.startRow = startSq[0]
         self.startCol = startSq[1]
         self.endRow = endSq[0]
+        self.board = board
         self.endCol = endSq[1]
         self.pieceMoved = board[self.startRow][self.startCol]
         self.pieceCaptured = board[self.endRow][self.endCol]
@@ -15,6 +16,13 @@ class Move():
         
         if (self.pieceMoved == 'wp' and self.endRow == 0) or ( self.pieceMoved == 'bp' and self.endRow == 7) :
             self.isPawnPromotion = True
+
+        self.isCaptureMove = isCaptureMove
+
+        if(self.pieceMoved[0] == 'w' and self.board[self.endRow][self.endCol][0] == 'b'):
+            self.isCaptureMove = True
+        if(self.pieceMoved[0] == 'b' and self.board[self.endRow][self.endCol][0] == 'w'):
+            self.isCaptureMove = True        
 
         self.is_enpassant_move = is_enpassant_move
         if self.is_enpassant_move:
