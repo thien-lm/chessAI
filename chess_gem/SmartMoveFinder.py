@@ -136,15 +136,21 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     number_of_move = 0
     number_of_move += 1
     global COUNT 
-    
+    global COUNTER
+    COUNTER = 0
     
     COUNT = 0
     global start_time
-    start_time = time.time()
+    
     findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1)
     SUM += COUNT
-    print("all node take: " + "--- %s seconds ---" % (time.time() - start_time))
-    print(COUNT)
+    print(COUNTER)
+    # start_time = time.time()
+    # gs.makeMove(validMoves[0])
+    # gs.getValidMoves()
+    # gs.undoMove()
+    # print("generate all move take: " + "--- %s seconds ---" % (time.time() - start_time))
+    # print(COUNT)
     # print(SUM/number_of_move)
     returnQueue.put(nextMove)
 
@@ -177,17 +183,18 @@ def Quiesce(alpha, beta, depth, gs, turnMultipler):
 def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
     global COUNT
     COUNT += 1
-    global start_time
+    # global start_time
     # if COUNT == 1000:
     #     print("1000 node take: " + "--- %s seconds ---" % (time.time() - start_time))
     global nextMove
     if depth == 0 or len(validMoves) == 0:
         return turnMultipler * scoreBoard(gs)
-    # validMoves = sortMove(gs, validMoves, turnMultipler)
+    validMoves = sortMove(gs, validMoves, turnMultipler)
     maxScore = -CHECKMATE
     for move in validMoves:
         gs.makeMove(move)
         nextMoves = gs.getValidMoves()
+        gs.getValidMoves()
         score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth - 1, -beta, -alpha,  -turnMultipler)#max(a, b) = min(-a, -b) = -max(-a, -b)
         if score > maxScore:
             maxScore = score
@@ -203,6 +210,10 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
 
 def sortMove(gs, moveList, turnMultipler):
     # random.shuffle(moveList)
+    global COUNTER
+    COUNTER += 1
+    global start_time
+    start_time = time.time()
     moveList = tuple(moveList[::-1])
     score = []
     for i in range(len(moveList)):
@@ -249,7 +260,7 @@ def sortMove(gs, moveList, turnMultipler):
 
     newListB = [i for i in newListB if i != "null"]
         
-
+    print("sort all move take: " + "--- %s seconds ---" % (time.time() - start_time))
 
     return newListA + newListB
 
