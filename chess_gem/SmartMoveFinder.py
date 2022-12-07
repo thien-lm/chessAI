@@ -53,7 +53,7 @@ whitePawnScores = np.array(([80, 80, 80, 80, 80, 80, 80, 80],
                  [25, 25, 30, 45, 45, 30, 25, 25],
                  [20, 20, 20, 40, 40, 20, 20, 20],
                  [25, 15, 10, 20, 20, 10, 15, 25],
-                 [25, 30, 30, 0, 0, 30, 30, 25],
+                 [10, 30, 50, 50, 50, 50, 30, 10],
                  [0, 0, 0, 0 ,0, 0, 0, 0]))
 blackPawnScores = np.array(([0, 0, 0, 0 ,0, 0, 0, 0],
                  [10, 30, 50, 50, 50, 50, 30, 10],
@@ -75,7 +75,7 @@ blackPawnScores = np.array(([0, 0, 0, 0 ,0, 0, 0, 0],
 #                          "wp": np.array(whitePawnScores),
 #                          "bp": np.array(blackPawnScores[::-1])}
 
-piecePosistionScores = {'N': knightScores, 'B': bishopScores, 'Q': queenScores, 'R': rookScores, 'bp': blackPawnScores, 'wp': whitePawnScores}
+piecePosistionScores = {'N': knightScores, 'B': bishopScores, 'Q': queenScores, 'R': rookScores, 'wp': whitePawnScores, 'bp': blackPawnScores}
                
 
 CHECKMATE = 50000
@@ -137,13 +137,13 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     COUNT = 0
     global start_time
     start_time = time.time()
-    #random.shuffle(validMoves)#shuffle make it less efficent but to make move non repeated
-    #findMoveNegaMax(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1 )
-    #findMoveMinMax(gs, validMoves, DEPTH, gs.whiteToMove )
     findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1)
-    SUM += COUNT
-    print("all node take: " + "--- %s seconds ---" % (time.time() - start_time))
-    print(COUNT)
+    gs.makeMove(nextMove)
+    print('after make move, score is: ', scoreBoard(gs))
+    gs.undoMove()
+    # SUM += COUNT
+    # print("all node take: " + "--- %s seconds ---" % (time.time() - start_time))
+    # print(COUNT)
     #print(SUM/number_of_move)
     returnQueue.put(nextMove)
 
@@ -151,98 +151,64 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
 
 # a slimmed down version of alpha-beta that only searches capturing moves, and that allows the search to stop if the current evaluation is already good enough for a fail high
 def Quiesce(alpha, beta, gs, turnMultipler): 
-    # if len(validMoves) == 0:
-    #     return turnMultipler * scoreBoard(gs)  
 
-    score = scoreBoard(gs)*turnMultipler
+    stand_pat = scoreBoard(gs)
+    # print('score: ', scoreBoard(gs), ' \n beta: ', beta)
+    if stand_pat >= beta:
+        return beta
+    if alpha < stand_pat:
+        alpha = stand_pat
 
-    # if stand_pat > alpha: #prunning happend
-    #     alpha = stand_pat
-    #     #break do khong the tim duoc node tot hon trong nhanh do    
-    # if alpha >= beta:
-    #     return beta
-    if score >= beta:
-        return score
-    
-    # if len(gs.capturedMove) == 0:
-    #     return turnMultipler * scoreBoard(gs) 
-    print('before: ', len(gs.capturedMove))
     for move in gs.capturedMove:
         gs.makeMove(move)
         gs.getValidMoves()
-        print('after: ', len(gs.capturedMove))
         score = -Quiesce(-beta, -alpha, gs, -turnMultipler)#max(a, b) = min(-a, -b) = -max(-a, -b)
         gs.undoMove()
         #dat alpha bang gia tri max score
-        if score > alpha: #prunning happend
+        if score >= beta: #prunning happend
+            return beta   
+        if score > alpha:
             alpha = score
-        #break do khong the tim duoc node tot hon trong nhanh do    
-        if alpha >= beta:
-            break
-        #backtracking len thi moi co gia tri cua alpha
-    return score
+    return alpha
 
 
-def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
+def findMoveNegaMaxAlphaBeta(gs, nextMoves, depth, alpha, beta, turnMultipler):
     global COUNT
     COUNT += 1
     global start_time
-    # if COUNT == 1000:
-    #     print("1000 node take: " + "--- %s seconds ---" % (time.time() - start_time))
     global nextMove
     if depth == 0:#implement quiescense search
-        # print('the length of captured move is: ', len(gs.capturedMove))
-        return Quiesce(alpha, beta, gs, turnMultipler)
-        return turnMultipler * scoreBoard(gs)  #sao cho scoreboard luon duong
-
-
-    validMoves = sortMove(gs, validMoves, turnMultipler)
+        # print("value of quiesce: ", Quiesce(alpha, beta, gs, turnMultipler))
+        # return Quiesce(alpha, beta, gs, turnMultipler)*turnMultipler
+        print(scoreBoard(gs))
+        return scoreBoard(gs) *turnMultipler#sao cho scoreboard luon duong
+    
+    
+    # validMoves = sortMove(gs, validMoves, turnMultipler)
     maxScore = -CHECKMATE
-    for move in validMoves:
+    for move in nextMoves:
         gs.makeMove(move)
         nextMoves = gs.getValidMoves()
         score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth - 1, -beta, -alpha,  -turnMultipler)#max(a, b) = min(-a, -b) = -max(-a, -b)
-        if score > maxScore:#tang gia tri score len cao nhat co the, xac lap buoc di theo score do
-            maxScore = score
-            if depth == gs.DEPTH:
-                nextMove = move
+        # if score > maxScore:#tang gia tri score len cao nhat co the, xac lap buoc di theo score do
+        #     maxScore = score
+        #     if depth == gs.DEPTH:
+        #         nextMove = move
+
         gs.undoMove()
-        #dat alpha bang gia tri max score
-        if maxScore > alpha: #prunning happend
-            alpha = maxScore
-        #break do khong the tim duoc node tot hon trong nhanh do    
-        if alpha >= beta:
-            break
-        #backtracking len thi moi co gia tri cua alpha
-    return maxScore
+        print('score of this move is: ', score)
+        if score >= beta: #prunning happend
+            return beta
+        #break do khong the tim duoc node tot hon trong nhanh do 
+        # tang giatri neu tim duoc buoc di tot hon   
+        if score > alpha:
+            alpha = score
+            if depth == gs.DEPTH:
+                nextMove = move        
 
-'''Score the board base on the material'''
-def scoreBoard(gs):
-    if gs.checkMate:
-        if gs.whiteToMove:
-            return -CHECKMATE#blackwin
-        else:
-            return CHECKMATE
-    elif gs.staleMate:
-        return STALEMATE
 
-    score = 0
-    for row in range(8):
-        for col in range(8):
-            square = gs.board[row][col]
-            if square != "--":
-                #score it possitionally
-                piecePosistionScore = 0
-                if square[1] != "K":
-                    if square[1] == 'p':
-                        piecePosistionScore = piecePosistionScores[square][row][col]
-                    else:
-                        piecePosistionScore = piecePosistionScores[square[1]][row][col]
-                if square[0] == 'w':
-                    score += pieceScore[square[1]] + piecePosistionScore
-                elif square[0] == 'b':
-                    score -= pieceScore[square[1]] + piecePosistionScore
-    return score
+
+    return alpha
 
 
 def sortMove(gs, moveList, turnMultipler):
@@ -307,4 +273,32 @@ def scoreMaterial(board):
                 score += pieceScore[square[1]]
             elif square[0] == 'b':
                 score -= pieceScore[square[1]]
+    return score
+
+'''Score the board base on the material'''
+def scoreBoard(gs):
+    if gs.checkMate:
+        if gs.whiteToMove:
+            return -CHECKMATE#blackwin
+        else:
+            return CHECKMATE
+    elif gs.staleMate:
+        return STALEMATE
+
+    score = 0
+    for row in range(8):
+        for col in range(8):
+            square = gs.board[row][col]
+            if square != "--":
+                #score it possitionally
+                piecePosistionScore = 0
+                if square[1] != "K":
+                    if square[1] == 'p':
+                        piecePosistionScore = piecePosistionScores[square][row][col]
+                    else:
+                        piecePosistionScore = piecePosistionScores[square[1]][row][col]
+                if square[0] == 'w':
+                    score += pieceScore[square[1]] + piecePosistionScore
+                elif square[0] == 'b':
+                    score -= pieceScore[square[1]] + piecePosistionScore
     return score

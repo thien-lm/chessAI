@@ -71,7 +71,7 @@ def main():
     playerClicks = [] # keep track player click
     gameOver = False
     playerOne = False#if a human is playing, human play white, AI playing = false
-    playerTwo = True#same as above but for black
+    playerTwo = False#same as above but for black
     AIThinking = False
     moveFinderProcess = None
     moveUndone = False
@@ -150,16 +150,16 @@ def main():
                     #print('done thinking')
                     AIMove = returnQueue.get()    
                     if AIMove is None:
+                        print('opps no move found')
                         AIMove = SmartMoveFinder.findRandomMove(validMoves)
                     gs.makeMove(AIMove)
                     numMove += 1
-                    #print(AIMove.getChessNotation())
+                    print('valude of board after move: ',SmartMoveFinder.scoreBoard(gs))
                     moveMade = True
                     animate = True
                     AIThinking = False
             else:
                 AIMove = SmartMoveFinder.findGreedy(gs, validMoves)
-                AIMove = None
                 if AIMove is None:
                     AIMove = SmartMoveFinder.findRandomMove(validMoves)
                 gs.makeMove(AIMove)
