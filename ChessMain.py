@@ -100,7 +100,7 @@ def main():
                         for i in range(len(validMoves)):
                             if move == validMoves[i]:
                                 gs.makeMove(validMoves[i])
-                                print('Valid Move')
+                                # print('valude of board after move: ',SmartMoveFinder.scoreBoard(gs))
                                 if(move.isCastleMove == True): print('this is a valid move')
                                 moveMade = True
                                 animate = True

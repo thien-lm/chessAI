@@ -15,54 +15,58 @@ pieceScore = {'K': 0, 'Q': 900,'R': 500, 'B': 300, 'N': 300, 'p': 100}
 #                [1, 2, 2, 2, 2, 2, 2, 1],               
 #                [1, 1, 1, 1, 1, 1, 1, 1]])
 # scorilize
-knightScores = np.array(([0, 10, 20, 20 ,20, 20, 10, 10],
-                 [10, 30, 50, 50, 50, 50, 30, 10],
-                 [20, 55, 60, 65, 65, 60, 55, 20],
-                 [20, 55, 60, 65, 65, 60, 55, 20],
-                 [20, 50, 65, 70, 70, 65, 50, 20],
-                 [20, 55, 60, 65, 65, 60, 55, 20],
-                 [10, 30, 50, 55, 55, 50, 30, 10],
-                 [0, 10, 20, 20 ,20, 20, 10, 0]))
-bishopScores = np.array(([0, 20, 20, 20, 20, 20, 20, 0],
-                 [20, 40, 40, 40, 40, 40, 40, 20],
-                 [20, 40, 50, 60, 60, 50, 40, 20],
-                 [20, 50, 50, 50, 60, 50, 50, 20],
-                 [20, 40, 60, 60, 60, 60, 40, 20],
-                 [20, 60, 60, 60, 60, 60, 60, 20],
-                 [20, 50, 40, 40, 40, 40, 50, 20],
-                 [0, 20, 20, 20, 20, 20, 20, 0]))
-rookScores = np.array(([25, 25, 25, 50, 25, 50, 25, 25],
-               [50, 75, 75, 75, 75, 75, 75, 50],
-               [0, 25, 25, 25, 25, 25, 25, 0],
-               [0, 25, 25, 25, 25, 25, 25, 0],
-               [0, 25, 25, 25, 25, 25, 25, 0],
-               [0, 25, 25, 25, 25, 25, 25, 0],
-               [0, 25, 25, 25, 25, 25, 25, 0],
-               [25, 25, 25, 50, 25, 50, 25, 25]))
-queenScores = np.array(([0, 20, 20, 30, 30, 20, 20, 0],
-                 [20, 40, 40, 40, 40, 40, 40, 20],
-                 [20, 40, 50, 50, 50, 50, 40, 20],
-                 [30, 40, 50, 50, 50, 50, 40, 30],
-                 [40, 40, 50, 50, 50, 50, 40, 30],
-                 [20, 40, 50, 50, 50, 50, 40, 20],
-                 [20, 40, 40, 40, 40, 40, 40, 20],
-                 [0, 20, 20, 30, 30, 20, 20, 0]))
-whitePawnScores = np.array(([80, 80, 80, 80, 80, 80, 80, 80],
-                 [70, 70, 70, 70, 70, 70, 70, 70],
-                 [30, 30, 40, 50, 50, 40, 30, 30],
-                 [25, 25, 30, 45, 45, 30, 25, 25],
-                 [20, 20, 20, 40, 40, 20, 20, 20],
-                 [25, 15, 10, 20, 20, 10, 15, 25],
-                 [10, 30, 50, 50, 50, 50, 30, 10],
-                 [0, 0, 0, 0 ,0, 0, 0, 0]))
-blackPawnScores = np.array(([0, 0, 0, 0 ,0, 0, 0, 0],
-                 [10, 30, 50, 50, 50, 50, 30, 10],
-                 [25, 15, 10, 20, 20, 10, 15, 25],
-                 [20, 20, 20, 40, 40, 20, 20, 20],
-                 [25, 25, 30, 45, 45, 30, 25, 25],
-                 [30, 30, 40, 50, 50, 40, 30, 30],
-                 [70, 70, 70, 70, 70, 70, 70, 70],
-                 [80, 80, 80, 80, 80, 80, 80, 80]))
+knightScores = np.array((
+                ( -5,   0,   0,   0,   0,   0,   0,  -5),
+                 ( -5,   0,   0,  10,  10,   0,   0,  -5),
+                 (-5,   5,  20,  20,  20,  20,   5,  -5),
+                 ( -5,  10,  20,  30,  30,  20,  10,  -5),
+                 (-5,  10,  20,  30,  30,  20,  10,  -5),
+                 (-5,   5,  20,  10,  10,  20,   5,  -5),
+                 (-5,   0,   0,   0,   0,   0,   0,  -5),
+                 (-5, -10,   0,   0,   0,   0, -10,  -5)
+                 ))
+bishopScores = np.array((
+    (0,   0,   0,   0,   0,   0,   0,   0),
+     (0,   0,   0,   0,   0,   0,   0,   0),
+     (0,   0,   0,  10,  10,   0,   0,   0),
+     (0,   0,  10,  20,  20,  10,   0,   0),
+     (0,   0,  10,  20,  20,  10,   0,   0),
+     (0,  10,   0,   0,   0,   0,  10,   0),
+     (0,  30,   0,   0,   0,   0,  30,   0),
+     (0,   0, -10,   0,   0, -10,   0,   0)
+))
+rookScores = np.array((
+    (50,  50,  50,  50,  50,  50,  50,  50),
+    (50,  50,  50,  50,  50,  50,  50,  50),
+    (0,   0,  10,  20,  20,  10,   0,   0),
+     (0,   0,  10,  20,  20,  10,   0,   0),
+     (0,   0,  10,  20,  20,  10,   0,   0),
+     (0,   0,  10,  20,  20,  10,   0,   0),
+     (0,   0,  10,  20,  20,  10,   0,   0),
+     (0,   0,   0,  20,  20,   0,   0,   0)
+))
+queenScores = np.array(((0, 0, 0, 0, 0, 0, 0, 0),
+                 (0, 0, 0, 0, 0, 0, 0, 0),
+                 (0, 0, 0, 0, 0, 0, 0, 0),
+                 (0, 0, 0, 0, 0, 0, 0, 0),
+                 (0, 0, 0, 0, 0, 0, 0, 0),
+                 (0, 0, 0, 0, 0, 0, 0, 0),
+                 (0, 0, 0, 0, 0, 0, 0, 0),
+                 (0, 0, 0, 0, 0, 0, 0, 0)))
+whitePawnScores = np.array(((90,  90,  90,  90,  90,  90,  90,  90),
+                 (30,  30,  30,  40,  40,  30,  30,  30),
+                 (20,  20,  20,  30,  30,  30,  20,  20),
+                 (10,  10,  10,  20,  20,  10,  10,  10),
+                 (5,   5,  10,  20,  20,   5,   5,   5),
+                 (0,   0,   0,   5,   5,   0,   0,   0),
+                 (0,   0,   0, -10, -10,   0,   0,   0),
+                 (0,   0,   0,   0,   0,   0,   0,   0)
+                 ))
+blackPawnScores = whitePawnScores[::-1]
+blackRookScores = rookScores[::-1]
+blackKnightScores = knightScores[::-1]
+blackBishopScores = bishopScores[::-1]
+blackQueenScores = queenScores[::-1]
 
 # piecePosistionScores = {"wN": np.array(knightScores),
 #                          "bN": np.array(knightScores[::-1]),
@@ -75,7 +79,7 @@ blackPawnScores = np.array(([0, 0, 0, 0 ,0, 0, 0, 0],
 #                          "wp": np.array(whitePawnScores),
 #                          "bp": np.array(blackPawnScores[::-1])}
 
-piecePosistionScores = {'N': knightScores, 'B': bishopScores, 'Q': queenScores, 'R': rookScores, 'wp': whitePawnScores, 'bp': blackPawnScores}
+piecePosistionScores = {'wN': knightScores, 'wB': bishopScores, 'wQ': queenScores, 'wR': rookScores, 'wp': whitePawnScores, 'bp': blackPawnScores, 'bN': blackKnightScores, 'bR': blackRookScores, 'bB': blackBishopScores, 'bQ': blackQueenScores}
                
 
 CHECKMATE = 50000
@@ -138,20 +142,18 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     global start_time
     start_time = time.time()
     findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1)
-    gs.makeMove(nextMove)
-    print('after make move, score is: ', scoreBoard(gs))
-    gs.undoMove()
-    # SUM += COUNT
-    # print("all node take: " + "--- %s seconds ---" % (time.time() - start_time))
-    # print(COUNT)
-    #print(SUM/number_of_move)
+    SUM += COUNT
+    print("all node take: " + "--- %s seconds ---" % (time.time() - start_time))
+    print(COUNT)
+    # print(SUM/number_of_move)
     returnQueue.put(nextMove)
 
 #copy from quiescence search post of chessprogramming.org
 
 # a slimmed down version of alpha-beta that only searches capturing moves, and that allows the search to stop if the current evaluation is already good enough for a fail high
-def Quiesce(alpha, beta, gs, turnMultipler): 
-
+def Quiesce(alpha, beta, depth, gs, turnMultipler):
+    if depth == 0:
+        return scoreBoard(gs) 
     stand_pat = scoreBoard(gs)
     # print('score: ', scoreBoard(gs), ' \n beta: ', beta)
     if stand_pat >= beta:
@@ -162,7 +164,7 @@ def Quiesce(alpha, beta, gs, turnMultipler):
     for move in gs.capturedMove:
         gs.makeMove(move)
         gs.getValidMoves()
-        score = -Quiesce(-beta, -alpha, gs, -turnMultipler)#max(a, b) = min(-a, -b) = -max(-a, -b)
+        score = -Quiesce(-beta, -alpha, depth -1,  gs, -turnMultipler)#max(a, b) = min(-a, -b) = -max(-a, -b)
         gs.undoMove()
         #dat alpha bang gia tri max score
         if score >= beta: #prunning happend
@@ -172,43 +174,31 @@ def Quiesce(alpha, beta, gs, turnMultipler):
     return alpha
 
 
-def findMoveNegaMaxAlphaBeta(gs, nextMoves, depth, alpha, beta, turnMultipler):
+def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
     global COUNT
     COUNT += 1
     global start_time
+    # if COUNT == 1000:
+    #     print("1000 node take: " + "--- %s seconds ---" % (time.time() - start_time))
     global nextMove
-    if depth == 0:#implement quiescense search
-        # print("value of quiesce: ", Quiesce(alpha, beta, gs, turnMultipler))
-        # return Quiesce(alpha, beta, gs, turnMultipler)*turnMultipler
-        print(scoreBoard(gs))
-        return scoreBoard(gs) *turnMultipler#sao cho scoreboard luon duong
-    
-    
+    if depth == 0 or len(validMoves) == 0:
+        return turnMultipler * scoreBoard(gs)
     # validMoves = sortMove(gs, validMoves, turnMultipler)
     maxScore = -CHECKMATE
-    for move in nextMoves:
+    for move in validMoves:
         gs.makeMove(move)
         nextMoves = gs.getValidMoves()
         score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth - 1, -beta, -alpha,  -turnMultipler)#max(a, b) = min(-a, -b) = -max(-a, -b)
-        # if score > maxScore:#tang gia tri score len cao nhat co the, xac lap buoc di theo score do
-        #     maxScore = score
-        #     if depth == gs.DEPTH:
-        #         nextMove = move
-
-        gs.undoMove()
-        print('score of this move is: ', score)
-        if score >= beta: #prunning happend
-            return beta
-        #break do khong the tim duoc node tot hon trong nhanh do 
-        # tang giatri neu tim duoc buoc di tot hon   
-        if score > alpha:
-            alpha = score
+        if score > maxScore:
+            maxScore = score
             if depth == gs.DEPTH:
-                nextMove = move        
-
-
-
-    return alpha
+                nextMove = move
+        gs.undoMove()
+        if maxScore > alpha: #prunning happend
+            alpha = maxScore
+        if alpha >= beta:
+            break
+    return maxScore
 
 
 def sortMove(gs, moveList, turnMultipler):
@@ -223,7 +213,7 @@ def sortMove(gs, moveList, turnMultipler):
     newListB = list(moveList)
     list_loca = []
     if turnMultipler == 1:
-        for i in range(min(len(moveList), 8)):
+        for i in range(min(len(moveList), 6)):
             maxScore = -1000000
             maxLocation = 0
             global checkJ
@@ -240,7 +230,7 @@ def sortMove(gs, moveList, turnMultipler):
 
 
     if turnMultipler == -1:
-        for i in range(min(len(moveList), 8)):
+        for i in range(min(len(moveList), 6)):
             maxScore = 1000000
             maxLocation = 0
             checkJ = False 
@@ -293,10 +283,7 @@ def scoreBoard(gs):
                 #score it possitionally
                 piecePosistionScore = 0
                 if square[1] != "K":
-                    if square[1] == 'p':
                         piecePosistionScore = piecePosistionScores[square][row][col]
-                    else:
-                        piecePosistionScore = piecePosistionScores[square[1]][row][col]
                 if square[0] == 'w':
                     score += pieceScore[square[1]] + piecePosistionScore
                 elif square[0] == 'b':
