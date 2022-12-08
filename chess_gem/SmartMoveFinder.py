@@ -79,7 +79,7 @@ MVV_LVA = np.array((
 ))
 
 pieceToMVV_LVA = {'p': 0, 'N': 1, 'B': 2, 'R': 3, 'Q': 4, 'K' : 5}
-print(MVV_LVA[pieceToMVV_LVA['p']][pieceToMVV_LVA['K']])
+
 
 piecePosistionScores = {'wN': knightScores, 'wB': bishopScores, 'wQ': queenScores, 'wR': rookScores, 'wp': whitePawnScores, 'bp': blackPawnScores, 'bN': blackKnightScores, 'bR': blackRookScores, 'bB': blackBishopScores, 'bQ': blackQueenScores}
                
@@ -102,7 +102,8 @@ def scoreMove(gs, validMoves):
             #     move.score = 8000
             # #score history move
             else:
-                move.score = historyMoves[move.pieceMoved][move.pieceCaptured]
+                if historyMoves[move.pieceMoved].get(move.endSq) != None:
+                    move.score = historyMoves[move.pieceMoved][move.endSq]
 
 def sort_Move(gs, validMoves):
     scoreMove(gs, validMoves)
@@ -163,6 +164,7 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     global COUNT 
     global COUNTER
     COUNTER = 0
+    # print('ensq: ', validMoves[0].endSq)
     scoreMove(gs, validMoves)
     sort_Move(gs, validMoves)
     # for move in validMoves:
@@ -172,8 +174,10 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     global start_time
     
     findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1)
+    print("best Move is: ", nextMove.startSq, " TO: ", nextMove.endSq)
     SUM += COUNT
     print('number of tranversed node: ', COUNT)
+
     # print('number of sorted step: ', COUNTER)
     # start_time = time.time()
     # gs.makeMove(validMoves[0])
@@ -205,18 +209,30 @@ def Quiesce(alpha, beta, depth, gs, turnMultipler):
 ply = 0
 killerMove1 = [1, 2, 3, 4, 5, 6]
 killerMove2 = [1, 2, 3, 4, 5, 6]
-historyMoves = []
+
+historyMoves = {
+    'wp' : {},
+    'wR' : {},
+    'wN' : {},
+    'wB' : {},
+    'wQ' : {},
+    'wK' : {},
+    'bp' : {},
+    'bR' : {},
+    'bN' : {},
+    'bB' : {},
+    'bQ' : {},
+    'bK' : {}
+}
 
 def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
     global COUNT
     global ply
     global nextMove
     if depth == 0 or len(validMoves) == 0:
-        return turnMultipler * scoreBoard(gs)
+        return scoreBoard(gs)
     COUNT += 1
-    sort_Move(gs, validMoves)
-    for move in validMoves:
-        print('score of move: ', move.score, 'notation: ', move.getChessNotation())
+    # sort_Move(gs, validMoves)
     # validMoves = sortMove(gs, validMoves, turnMultipler)
     maxScore = -CHECKMATE
     for move in validMoves:
@@ -232,12 +248,20 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
                 nextMove = move
         ply -= 1
         gs.undoMove()
+
         if maxScore > alpha: #prunning happend
-            historyMoves[move.pieceMoved][move.pieceCaptured] += depth**2
-            alpha = maxScore
+            if not move.isCaptureMove:
+                if historyMoves[move.pieceMoved].get(move.endSq) == None :
+                    historyMoves[move.pieceMoved][move.endSq] = 0
+                    historyMoves[move.pieceMoved][move.endSq] += 1
+                else:    
+                    historyMoves[move.pieceMoved][move.endSq] += depth**2
+                alpha = maxScore
+
         if alpha >= beta:
-            killerMove2[ply] = deepcopy(killerMove1[ply])
-            killerMove1[ply] = deepcopy(move)
+            if not move.isCaptureMove:
+                killerMove2[ply] = deepcopy(killerMove1[ply])
+                killerMove1[ply] = deepcopy(move)
             break
     return maxScore
 
@@ -333,4 +357,4 @@ def scoreBoard(gs):
                     score += pieceScore[square[1]] + piecePosistionScore
                 elif square[0] == 'b':
                     score -= pieceScore[square[1]] + piecePosistionScore
-    return score
+    return score if gs.whiteToMove else -score

@@ -154,7 +154,7 @@ def main():
                         AIMove = SmartMoveFinder.findRandomMove(validMoves)
                     gs.makeMove(AIMove)
                     numMove += 1
-                    print('valude of board after move: ',SmartMoveFinder.scoreBoard(gs))
+                    # print('valude of board after move: ',SmartMoveFinder.scoreBoard(gs))
                     moveMade = True
                     animate = True
                     AIThinking = False

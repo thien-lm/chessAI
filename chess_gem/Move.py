@@ -10,6 +10,8 @@ class Move():
         self.endRow = endSq[0]
         self.board = board
         self.endCol = endSq[1]
+        self.startSq = startSq
+        self.endSq = endSq
         self.pieceMoved = board[self.startRow][self.startCol]
         self.pieceCaptured = board[self.endRow][self.endCol]
         self.isPawnPromotion = False
