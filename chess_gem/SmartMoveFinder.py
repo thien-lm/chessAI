@@ -1,8 +1,9 @@
 import random
 import numpy as np
 from easygui import *
-from chess_gem import  ChessEngine
+from chess_gem import  ChessEngine, Move
 import ChessMain
+from copy import copy, deepcopy
 import time
 
 pieceScore = {'K': 0, 'Q': 900,'R': 500, 'B': 300, 'N': 300, 'p': 100}
@@ -68,19 +69,44 @@ blackKnightScores = knightScores[::-1]
 blackBishopScores = bishopScores[::-1]
 blackQueenScores = queenScores[::-1]
 
-# piecePosistionScores = {"wN": np.array(knightScores),
-#                          "bN": np.array(knightScores[::-1]),
-#                          "wB": np.array(bishopScores),
-#                          "bB": np.array(bishopScores[::-1]),
-#                          "wQ": np.array(queenScores),
-#                          "bQ": np.array(queenScores[::-1]),
-#                          "wR": np.array(rookScores),
-#                          "bR": np.array(rookScores[::-1]),
-#                          "wp": np.array(whitePawnScores),
-#                          "bp": np.array(blackPawnScores[::-1])}
+MVV_LVA = np.array((
+    (105, 205, 305, 405, 505, 605),
+    (104, 204, 304, 404, 504, 604),
+    (103, 203, 303, 403, 503, 603),
+    (102, 202, 302, 402, 502, 602),
+    (101, 201, 301, 401, 501, 601),
+    (100, 200, 300, 400, 500, 600)
+))
+
+pieceToMVV_LVA = {'p': 0, 'N': 1, 'B': 2, 'R': 3, 'Q': 4, 'K' : 5}
+print(MVV_LVA[pieceToMVV_LVA['p']][pieceToMVV_LVA['K']])
 
 piecePosistionScores = {'wN': knightScores, 'wB': bishopScores, 'wQ': queenScores, 'wR': rookScores, 'wp': whitePawnScores, 'bp': blackPawnScores, 'bN': blackKnightScores, 'bR': blackRookScores, 'bB': blackBishopScores, 'bQ': blackQueenScores}
                
+def scoreMove(gs, validMoves):
+    global ply
+    for move in validMoves:
+        if move.isCaptureMove:
+            startPiece = move.pieceMoved[1]
+            endPiece = move.pieceCaptured[1]
+            move.score = MVV_LVA[pieceToMVV_LVA[startPiece]][pieceToMVV_LVA[endPiece]] + 10000
+        else:#for non cap move
+            # #score 1st killer move
+            if(isinstance(killerMove1[ply], Move.Move)):
+                if killerMove1[ply].pieceMoved == move.pieceMoved:
+                    move.score = 9000
+            if(isinstance(killerMove2[ply], Move.Move)):
+                if killerMove2[ply].pieceMoved == move.pieceMoved:
+                    move.score = 8000
+            # elif killerMove2[ply].pieceMoved == move.pieceMoved:
+            #     move.score = 8000
+            # #score history move
+            else:
+                move.score = historyMoves[move.pieceMoved][move.pieceCaptured]
+
+def sort_Move(gs, validMoves):
+    scoreMove(gs, validMoves)
+    validMoves.sort(reverse=True, key = lambda x: x.score)
 
 CHECKMATE = 50000
 STALEMATE = 0
@@ -128,7 +154,6 @@ def findGreedy(gs, validMoves):
     return bestPlayerMove
 SUM = 0
 def findBestMove(gs, validMoves, DEPTH, returnQueue):
-    # print(gs.blackKingLocation)
     global SUM
     global nextMove
     nextMove = None
@@ -138,30 +163,30 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     global COUNT 
     global COUNTER
     COUNTER = 0
+    scoreMove(gs, validMoves)
+    sort_Move(gs, validMoves)
+    # for move in validMoves:
+    #     print('score of move: ', move.score)
     
     COUNT = 0
     global start_time
     
     findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1)
     SUM += COUNT
-    print(COUNTER)
+    print('number of tranversed node: ', COUNT)
+    # print('number of sorted step: ', COUNTER)
     # start_time = time.time()
     # gs.makeMove(validMoves[0])
     # gs.getValidMoves()
     # gs.undoMove()
     # print("generate all move take: " + "--- %s seconds ---" % (time.time() - start_time))
-    # print(COUNT)
     # print(SUM/number_of_move)
     returnQueue.put(nextMove)
 
-#copy from quiescence search post of chessprogramming.org
-
-# a slimmed down version of alpha-beta that only searches capturing moves, and that allows the search to stop if the current evaluation is already good enough for a fail high
 def Quiesce(alpha, beta, depth, gs, turnMultipler):
     if depth == 0:
         return scoreBoard(gs) 
     stand_pat = scoreBoard(gs)
-    # print('score: ', scoreBoard(gs), ' \n beta: ', beta)
     if stand_pat >= beta:
         return beta
     if alpha < stand_pat:
@@ -172,38 +197,47 @@ def Quiesce(alpha, beta, depth, gs, turnMultipler):
         gs.getValidMoves()
         score = -Quiesce(-beta, -alpha, depth -1,  gs, -turnMultipler)#max(a, b) = min(-a, -b) = -max(-a, -b)
         gs.undoMove()
-        #dat alpha bang gia tri max score
         if score >= beta: #prunning happend
             return beta   
         if score > alpha:
             alpha = score
     return alpha
-
+ply = 0
+killerMove1 = [1, 2, 3, 4, 5, 6]
+killerMove2 = [1, 2, 3, 4, 5, 6]
+historyMoves = []
 
 def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
     global COUNT
-    COUNT += 1
-    # global start_time
-    # if COUNT == 1000:
-    #     print("1000 node take: " + "--- %s seconds ---" % (time.time() - start_time))
+    global ply
     global nextMove
     if depth == 0 or len(validMoves) == 0:
         return turnMultipler * scoreBoard(gs)
-    validMoves = sortMove(gs, validMoves, turnMultipler)
+    COUNT += 1
+    sort_Move(gs, validMoves)
+    for move in validMoves:
+        print('score of move: ', move.score, 'notation: ', move.getChessNotation())
+    # validMoves = sortMove(gs, validMoves, turnMultipler)
     maxScore = -CHECKMATE
     for move in validMoves:
         gs.makeMove(move)
+        ply += 1
         nextMoves = gs.getValidMoves()
         gs.getValidMoves()
         score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth - 1, -beta, -alpha,  -turnMultipler)#max(a, b) = min(-a, -b) = -max(-a, -b)
         if score > maxScore:
+            
             maxScore = score
             if depth == gs.DEPTH:
                 nextMove = move
+        ply -= 1
         gs.undoMove()
         if maxScore > alpha: #prunning happend
+            historyMoves[move.pieceMoved][move.pieceCaptured] += depth**2
             alpha = maxScore
         if alpha >= beta:
+            killerMove2[ply] = deepcopy(killerMove1[ply])
+            killerMove1[ply] = deepcopy(move)
             break
     return maxScore
 
@@ -214,7 +248,7 @@ def sortMove(gs, moveList, turnMultipler):
     COUNTER += 1
     global start_time
     start_time = time.time()
-    moveList = tuple(moveList[::-1])
+    # moveList = tuple(moveList[::-1])
     score = []
     for i in range(len(moveList)):
         gs.makeMove(moveList[i])
@@ -260,7 +294,7 @@ def sortMove(gs, moveList, turnMultipler):
 
     newListB = [i for i in newListB if i != "null"]
         
-    print("sort all move take: " + "--- %s seconds ---" % (time.time() - start_time))
+    # print("sort all move take: " + "--- %s seconds ---" % (time.time() - start_time))
 
     return newListA + newListB
 
