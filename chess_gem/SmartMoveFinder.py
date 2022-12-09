@@ -203,7 +203,7 @@ def Quiesce(alpha, beta, depth, gs, validMoves, turnMultipler):
     if evaluation > alpha:
         alpha = evaluation
 
-    sort_Move(gs, validMoves)
+    sort_Move(gs, gs.capturedMove)
     for move in gs.capturedMove:
         gs.makeMove(move)
         nextMove = gs.getValidMoves()
@@ -222,7 +222,6 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
     global nextMove
 
     if depth == 0 or len(validMoves) == 0:
-        return scoreBoard(gs)
         return Quiesce(alpha, beta, 3, gs, validMoves, turnMultipler)
     COUNT += 1
     nextMoves = gs.getValidMoves()
