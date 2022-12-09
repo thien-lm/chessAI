@@ -192,7 +192,7 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     print('number of tranversed node: ', COUNT)
     returnQueue.put(nextMove)
 
-def Quiesce(alpha, beta, depth, gs, validMoves, turnMultipler):
+def Quiescegeneratetrongfor(alpha, beta, depth, gs, validMoves, turnMultipler):
     
     evaluation = scoreBoard(gs)
     if depth == 0: return evaluation
@@ -203,7 +203,8 @@ def Quiesce(alpha, beta, depth, gs, validMoves, turnMultipler):
     if evaluation > alpha:
         alpha = evaluation
 
-    sort_Move(gs, gs.capturedMove)
+    # validMoves = gs.getValidMoves()
+    #sort_Move(gs, validMoves)
     for move in gs.capturedMove:
         gs.makeMove(move)
         nextMove = gs.getValidMoves()
@@ -215,6 +216,67 @@ def Quiesce(alpha, beta, depth, gs, validMoves, turnMultipler):
             alpha = score
     return alpha
 
+def Quiesce(alpha, beta, depth, gs, validMoves, turnMultipler):
+    
+    evaluation = scoreBoard(gs)
+    if depth == 0: return evaluation
+    
+    if(evaluation >= beta):
+        return beta
+
+    if evaluation > alpha:
+        alpha = evaluation
+
+    nextMove = gs.getValidMoves()
+    sort_Move(gs, gs.capturedMove)
+    for move in gs.capturedMove:
+        gs.makeMove(move)
+        score = -Quiesce(-beta, -alpha, depth -1,  gs, nextMove, -turnMultipler)#max(a, b) = min(-a, -b) = -max(-a, -b)
+        gs.undoMove()
+        if score >= beta: #prunning happend
+            return beta   
+        if score > alpha:
+            alpha = score
+    return alpha
+
+def findMoveNegaMaxAlphaBetanoob(gs, validMoves, depth, alpha, beta, turnMultipler):
+    global COUNT
+    global ply
+    global nextMove
+
+    if depth == 0 or len(validMoves) == 0:
+        # return scoreBoard(gs)
+        return Quiesce(alpha, beta, 4, gs, validMoves, turnMultipler)
+    COUNT += 1
+    
+    sort_Move(gs, validMoves)
+    for move in validMoves:
+        gs.makeMove(move)
+        ply += 1
+        nextMoves = gs.getValidMoves()
+        score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth - 1, -beta, -alpha,  -turnMultipler)#max(a, b) = min(-a, -b) = -max(-a, -b)
+        ply -= 1
+        gs.undoMove()
+
+        if score >= beta: #fail soft
+            if not move.isCaptureMove:
+                killerMove2[ply] = deepcopy(killerMove1[ply])
+                killerMove1[ply] = deepcopy(move)    
+            return beta    
+
+        if score > alpha: #better move
+            pvMove[ply] = deepcopy(move)
+            if not move.isCaptureMove:
+                if historyMoves[move.pieceMoved].get(move.endSq) == None :
+                    historyMoves[move.pieceMoved][move.endSq] = 0
+                    historyMoves[move.pieceMoved][move.endSq] += 1
+                else:    
+                    historyMoves[move.pieceMoved][move.endSq] += depth**2
+            alpha = score
+            if depth == gs.DEPTH:
+                nextMove = move
+            
+    return alpha
 
 def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
     global COUNT
@@ -222,7 +284,8 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
     global nextMove
 
     if depth == 0 or len(validMoves) == 0:
-        return Quiesce(alpha, beta, 3, gs, validMoves, turnMultipler)
+        # return scoreBoard(gs)
+        return Quiesce(alpha, beta, 7, gs, validMoves, turnMultipler)
     COUNT += 1
     nextMoves = gs.getValidMoves()
     sort_Move(gs, nextMoves)
