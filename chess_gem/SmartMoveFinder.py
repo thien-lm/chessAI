@@ -214,7 +214,8 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     'bK' : {}
 }
     
-
+    alpha = -50000
+    beta = 50000
     for currentDepth in range(1, gs.DEPTH + 1):
         COUNT = 0
         callGetMove = 0
@@ -222,7 +223,7 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
         #truyen truc tiep ca list vao findMoveNega, giong nhu truyen dia chi mang trong c++
         #type in python is usually object
 
-        score = findMoveNegaMaxAlphaBeta(gs, validMoves, currentDepth, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1, pvMove)
+        score = findMoveNegaMaxAlphaBeta(gs, validMoves, currentDepth, alpha, beta, 1 if gs.whiteToMove else -1, pvMove)
         print("score ", score)
         print('PV move depth ', currentDepth)
         for move in pvMove:
@@ -230,6 +231,14 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
                 print(" ", move.getChessNotation())
         print('number of tranversed node: ', COUNT)
         print('number of get move : ', callGetMove)
+
+        if (score <= alpha) or score >= beta:
+            alpha = -50000
+            beta = 50000
+            continue
+        alpha = score - 50
+        beta = score + 50
+
     returnQueue.put(nextMove)
 
 def Quiescegeneratetrongfor(alpha, beta, depth, gs, validMoves, turnMultipler):
@@ -346,7 +355,10 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler, 
 
         if score >= beta: #fail soft
             if not move.isCaptureMove:
-                killerMove2[ply] = deepcopy(killerMove1[ply])
+                if isinstance(killerMove1[ply], Move.Move):
+                    killerMove2[ply] = deepcopy(killerMove1[ply])
+                else:
+                    killerMove2[ply] = deepcopy(move)   
                 killerMove1[ply] = deepcopy(move)    
             return beta    
 
