@@ -6,7 +6,7 @@ import ChessMain
 from copy import copy, deepcopy
 import time
 
-pieceScore = {'K': 0, 'Q': 900,'R': 500, 'B': 300, 'N': 300, 'p': 100}
+pieceScore = {'K': 10000, 'Q': 900,'R': 500, 'B': 300, 'N': 300, 'p': 100}
 knightScores = np.array((
                 ( -5,   0,   0,   0,   0,   0,   0,  -5),
                  ( -5,   0,   0,  10,  10,   0,   0,  -5),
@@ -104,6 +104,8 @@ def sort_Move(gs, validMoves):
 CHECKMATE = 50000
 STALEMATE = 0
 COUNT = 0
+callScoreBoard = 0
+callGetMove = 0
 ply = 0
 killerMove1 = [1, 2, 3, 4, 5, 6]
 killerMove2 = [1, 2, 3, 4, 5, 6]
@@ -123,7 +125,7 @@ historyMoves = {
     'bK' : {}
 }
 
-pvMove = [0, 1, 2, 3, 4, 5, 6]
+pvMove = []
 
 def findRandomMove(validMoves):
     return validMoves[random.randint(0, len(validMoves) - 1)]
@@ -165,15 +167,17 @@ def findGreedy(gs, validMoves):
     return bestPlayerMove
 SUM = 0
 def findBestMove(gs, validMoves, DEPTH, returnQueue):
-    global SUM
+    global pvMove
     global nextMove
     nextMove = None
     global number_of_move 
     number_of_move = 0
     number_of_move += 1
     global COUNT 
+    global callGetMove
     global COUNTER
     COUNTER = 0
+    callGetMove = 0
     # print('ensq: ', validMoves[0].endSq)
     # scoreMove(gs, validMoves)
     # sort_Move(gs, validMoves)
@@ -182,14 +186,15 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     
     COUNT = 0
     global start_time
+    pvMove.clear()
     
-    findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1)
+    findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1, pvMove)
     print('PV move:')
     for move in pvMove:
         if isinstance(move, Move.Move):
             print(" ", move.getChessNotation())
-    SUM += COUNT
     print('number of tranversed node: ', COUNT)
+    print('number of get move : ', callGetMove)
     returnQueue.put(nextMove)
 
 def Quiescegeneratetrongfor(alpha, beta, depth, gs, validMoves, turnMultipler):
@@ -243,17 +248,19 @@ def findMoveNegaMaxAlphaBetanoob(gs, validMoves, depth, alpha, beta, turnMultipl
     global COUNT
     global ply
     global nextMove
-
+    global callGetMove
+    COUNT += 1
     if depth == 0 or len(validMoves) == 0:
         # return scoreBoard(gs)
         return Quiesce(alpha, beta, 4, gs, validMoves, turnMultipler)
-    COUNT += 1
+    
     
     sort_Move(gs, validMoves)
     for move in validMoves:
         gs.makeMove(move)
         ply += 1
         nextMoves = gs.getValidMoves()
+        callGetMove += 1
         score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth - 1, -beta, -alpha,  -turnMultipler)#max(a, b) = min(-a, -b) = -max(-a, -b)
         ply -= 1
         gs.undoMove()
@@ -278,23 +285,29 @@ def findMoveNegaMaxAlphaBetanoob(gs, validMoves, depth, alpha, beta, turnMultipl
             
     return alpha
 
-def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
+def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler, pv):
     global COUNT
+    global callGetMove
     global ply
     global nextMove
-
+    COUNT += 1
     if depth == 0 or len(validMoves) == 0:
         # return scoreBoard(gs)
         return Quiesce(alpha, beta, 7, gs, validMoves, turnMultipler)
-    COUNT += 1
+    
     nextMoves = gs.getValidMoves()
+    callGetMove += 1
     sort_Move(gs, nextMoves)
     for move in nextMoves:
+        childPV = []
         gs.makeMove(move)
+        # if ply == 0 and move.getChessNotation() == 'e2a6':
         ply += 1
-        score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth - 1, -beta, -alpha,  -turnMultipler)#max(a, b) = min(-a, -b) = -max(-a, -b)
+        score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth - 1, -beta, -alpha,  -turnMultipler, childPV)#max(a, b) = min(-a, -b) = -max(-a, -b)
         ply -= 1
         gs.undoMove()
+
+        
 
         if score >= beta: #fail soft
             if not move.isCaptureMove:
@@ -303,7 +316,8 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
             return beta    
 
         if score > alpha: #better move
-            pvMove[ply] = deepcopy(move)
+            # print(ply)
+            # pvMove[ply] = deepcopy(move)
             if not move.isCaptureMove:
                 if historyMoves[move.pieceMoved].get(move.endSq) == None :
                     historyMoves[move.pieceMoved][move.endSq] = 0
@@ -311,6 +325,11 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler):
                 else:    
                     historyMoves[move.pieceMoved][move.endSq] += depth**2
             alpha = score
+            #pv move
+            bestMove = deepcopy(move)
+            pv.clear()
+            pv.append(bestMove)
+            pv += childPV
             if depth == gs.DEPTH:
                 nextMove = move
             
