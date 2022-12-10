@@ -6,7 +6,7 @@ import ChessMain
 from copy import copy, deepcopy
 import time
 
-pieceScore = {'K': 10000, 'Q': 900,'R': 500, 'B': 300, 'N': 300, 'p': 100}
+pieceScore = {'K': 10000, 'Q': 1000,'R': 500, 'B': 350, 'N': 300, 'p': 100}
 knightScores = np.array((
                 ( -5,   0,   0,   0,   0,   0,   0,  -5),
                  ( -5,   0,   0,  10,  10,   0,   0,  -5),
@@ -37,6 +37,16 @@ rookScores = np.array((
      (0,   0,  10,  20,  20,  10,   0,   0),
      (0,   0,   0,  20,  20,   0,   0,   0)
 ))
+kingScores = np.array((
+     (0,   0,   0,   0,   0,   0,   0,   0),
+     (0,   0,   5,   5,   5,   5,   0,   0),
+     (0,   5,   5,  10,  10,   5,   5,   0),
+     (0,   5,  10,  20,  20,  10,   5,   0),
+     (0,   5,  10,  20,  20,  10,   5,   0),
+     (0,   0,   5,  10,  10,   5,   0,   0),
+     (0,   5,   5,  -5,  -5,   0,   5,   0),
+     (0,   0,   5,   0, -15,   0,  10,   0)
+))
 queenScores = np.array(((0, 0, 0, 0, 0, 0, 0, 0),
                  (0, 0, 0, 0, 0, 0, 0, 0),
                  (0, 0, 0, 0, 0, 0, 0, 0),
@@ -59,6 +69,7 @@ blackRookScores = rookScores[::-1]
 blackKnightScores = knightScores[::-1]
 blackBishopScores = bishopScores[::-1]
 blackQueenScores = queenScores[::-1]
+blackKingScores = kingScores[::-1]
 
 MVV_LVA = np.array((
     (105, 205, 305, 405, 505, 605),
@@ -70,7 +81,7 @@ MVV_LVA = np.array((
 ))
 pieceToMVV_LVA = {'p': 0, 'N': 1, 'B': 2, 'R': 3, 'Q': 4, 'K' : 5}
 
-piecePosistionScores = {'wN': knightScores, 'wB': bishopScores, 'wQ': queenScores, 'wR': rookScores, 'wp': whitePawnScores, 'bp': blackPawnScores, 'bN': blackKnightScores, 'bR': blackRookScores, 'bB': blackBishopScores, 'bQ': blackQueenScores}
+piecePosistionScores = {'wN': knightScores, 'wB': bishopScores, 'wQ': queenScores, 'wR': rookScores, 'wp': whitePawnScores, 'wK': kingScores, 'bK': blackKingScores, 'bp': blackPawnScores, 'bN': blackKnightScores, 'bR': blackRookScores, 'bB': blackBishopScores, 'bQ': blackQueenScores}
                
 def scoreMove(gs, validMoves):
     global ply
@@ -167,34 +178,58 @@ def findGreedy(gs, validMoves):
     return bestPlayerMove
 SUM = 0
 def findBestMove(gs, validMoves, DEPTH, returnQueue):
+    
     global pvMove
     global nextMove
-    nextMove = None
+    global killerMove1
+    global killerMove2
+    global historyMoves
     global number_of_move 
-    number_of_move = 0
-    number_of_move += 1
+    nextMove = None
     global COUNT 
     global callGetMove
     global COUNTER
+    global start_time
+
+    number_of_move = 0
+    number_of_move += 1
     COUNTER = 0
     callGetMove = 0
-    # print('ensq: ', validMoves[0].endSq)
-    # scoreMove(gs, validMoves)
-    # sort_Move(gs, validMoves)
-    # for move in validMoves:
-    #     print('score of move: ', move.score)
-    
     COUNT = 0
-    global start_time
-    pvMove.clear()
     
-    findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1, pvMove)
-    print('PV move:')
-    for move in pvMove:
-        if isinstance(move, Move.Move):
-            print(" ", move.getChessNotation())
-    print('number of tranversed node: ', COUNT)
-    print('number of get move : ', callGetMove)
+    killerMove1 = [1, 2, 3, 4, 5, 6]
+    killerMove2 = [1, 2, 3, 4, 5, 6]
+    historyMoves = {
+    'wp' : {},
+    'wR' : {},
+    'wN' : {},
+    'wB' : {},
+    'wQ' : {},
+    'wK' : {},
+    'bp' : {},
+    'bR' : {},
+    'bN' : {},
+    'bB' : {},
+    'bQ' : {},
+    'bK' : {}
+}
+    
+
+    for currentDepth in range(1, gs.DEPTH + 1):
+        COUNT = 0
+        callGetMove = 0
+        pvMove.clear()
+        #truyen truc tiep ca list vao findMoveNega, giong nhu truyen dia chi mang trong c++
+        #type in python is usually object
+
+        score = findMoveNegaMaxAlphaBeta(gs, validMoves, currentDepth, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1, pvMove)
+        print("score ", score)
+        print('PV move depth ', currentDepth)
+        for move in pvMove:
+            if isinstance(move, Move.Move):
+                print(" ", move.getChessNotation())
+        print('number of tranversed node: ', COUNT)
+        print('number of get move : ', callGetMove)
     returnQueue.put(nextMove)
 
 def Quiescegeneratetrongfor(alpha, beta, depth, gs, validMoves, turnMultipler):
@@ -462,8 +497,7 @@ def scoreBoard(gs):
             if square != "--":
                 #score it possitionally
                 piecePosistionScore = 0
-                if square[1] != "K":
-                        piecePosistionScore = piecePosistionScores[square][row][col]
+                piecePosistionScore = piecePosistionScores[square][row][col]
                 if square[0] == 'w':
                     score += pieceScore[square[1]] + piecePosistionScore
                 elif square[0] == 'b':
