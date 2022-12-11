@@ -34,17 +34,37 @@ class GameState():
         #     ['wp', '--', 'wp', '--', '--', 'wp', 'wp', 'wp'],
         #     ["--", "--", "--", "--", "--", "--", "--", "--"]
         # ]
+        #game with 1k4 elo
+        # self.board = [
+        #     ["bR", "--", "--", "--", "bK", "bB", "--", "bR"],
+        #     ['bp', 'bp', 'bp', '--', 'bp', 'bp', 'bp', '--'],
+        #     ['bN', '--', '--', '--', 'bQ', '--', '--', 'bp'],
+        #     ['--', '--', '--', 'bN', 'wN', 'bB', '--', '--'],
+        #     ['--', '--', '--', 'wp', '--', '--', '--', '--'],
+        #     ['--', 'wp', '--', '--', '--', '--', 'wp', '--'],
+        #     ['wp', 'wB', 'wp', '--', 'wp', 'wp', 'wB', 'wp'],
+        #     ["wR", "--", "--", "wQ", "wK", "--", "--", "wR"]
+        # ]
         self.board = [
-            ["bR", "--", "--", "--", "bK", "bB", "--", "bR"],
-            ['bp', 'bp', 'bp', '--', 'bp', 'bp', 'bp', '--'],
-            ['bN', '--', '--', '--', 'bQ', '--', '--', 'bp'],
-            ['--', '--', '--', 'bN', 'wN', 'bB', '--', '--'],
+            ["--", "bK", "--", "--", "bR", "--", "--", "bB"],
+            ['bp', 'bp', 'bp', '--', 'bp', '--', '--', 'bB'],
+            ['bN', '--', '--', '--', '--', 'bQ', 'bp', 'bp'],
             ['--', '--', '--', 'wp', '--', '--', '--', '--'],
-            ['--', 'wp', '--', '--', '--', '--', 'wp', '--'],
-            ['wp', 'wB', 'wp', '--', 'wp', 'wp', 'wB', 'wp'],
-            ["wR", "--", "--", "wQ", "wK", "--", "--", "wR"]
+            ['--', '--', 'wp', 'wp', '--', '--', 'wp', '--'],
+            ['--', 'wp', '--', '--', 'wR', '--', '--', '--'],
+            ['wp', 'wB', '--', '--', 'wQ', 'wp', 'wB', 'wp'],
+            ["wR", "--", "--", "--", "--", "--", "wK", "--"]
         ]
-
+        # self.board = [
+        #     ["--", "bK", "--", "bR", "--", "--", "--", "bR"],
+        #     ['bp', 'bp', 'bp', '--', 'bp', 'bp', 'bB', 'bB'],
+        #     ['bN', 'bQ', '--', '--', '--', '--', 'bp', 'bp'],
+        #     ['--', '--', '--', 'wp', 'wN', '--', '--', '--'],
+        #     ['--', '--', 'wp', 'wp', '--', '--', 'wp', '--'],
+        #     ['--', 'wp', '--', '--', '--', '--', 'wR', '--'],
+        #     ['wp', 'wB', '--', '--', '--', 'wp', 'wB', 'wp'],
+        #     ["wR", "--", "--", "wQ", "--", "--", "wK", "--"]
+        # ]
         # self.board = [
         #     ["--", "--", "wQ", "--", "--", "--", "--", "--"],
         #     ['--', 'wR', 'wB', '--', '--', '--', '--', '--'],
@@ -660,10 +680,11 @@ class GameState():
             self.getQueensideCatleMoves(r, c, moves)
             
     def getKingsideCastleMoves(self, r, c, moves):
-        if self.board[r][c+1] == '--' and self.board[r][c+2] == '--':
-            if not self.squareUnderAttack(r, c+1) and not self.squareUnderAttack(r, c + 2 ):
-                
-                moves.append(Move((r, c), (r, c+2), self.board, isCastleMove = True))
+        if 0 <= r and r <= 7 and 0 <= c+1 and c+ 1 <= 7 and 0 <= r+2 and r+2 <= 7: 
+            if self.board[r][c+1] == '--' and self.board[r][c+2] == '--':
+                if not self.squareUnderAttack(r, c+1) and not self.squareUnderAttack(r, c + 2 ):
+                    
+                    moves.append(Move((r, c), (r, c+2), self.board, isCastleMove = True))
 
     def getQueensideCatleMoves(self, r, c, moves):    
         if self.board[r][c-1] == '--' and self.board[r][c-2]  == '--' and self.board[r][c-3] == '--':
