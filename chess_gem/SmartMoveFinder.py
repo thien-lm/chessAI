@@ -101,6 +101,7 @@ scorePV = False
 followPv = False
 
 def enalbePvScoring(validMoves, depth):
+    print('current ply is ', ply)
     global scorePV 
     global followPv
     followPv = False
@@ -126,14 +127,13 @@ def scoreMove(gs, validMoves, depth):
     global scorePV
     # print('current ply is ', ply)
     for move in validMoves:
-
-        #pv move
         if scorePV:
             if ply < depth - 1 and depth > 1:
+                # if move.startSq == pvTable[depth - 2][ply].startSq and move.endSq == pvTable[depth - 2][ply].endSq:
                 if move.startSq == pvTable[ply][ply].startSq and move.endSq == pvTable[ply][ply].endSq:
                     move.score = 20000  
-                    scorePV = False      
                     continue
+            scorePV = False      
 
         if move.isCaptureMove:
             startPiece = move.pieceMoved[1]
@@ -142,17 +142,18 @@ def scoreMove(gs, validMoves, depth):
 
         if not move.isCaptureMove:#for non cap move
             # #score 1st killer move
-            if(isinstance(killerMove1[ply], Move.Move)):
-                if killerMove1[ply].startSq == move.startSq and killerMove1[ply].endSq == move.endSq:
-                    move.score = 9000
-            #second killer move
-            elif(isinstance(killerMove2[ply], Move.Move)) :
-                if killerMove2[ply].startSq == move.startSq and killerMove2[ply].endSq == move.endSq:
-                    move.score = 8000
+            # if(isinstance(killerMove1[ply], Move.Move)):
+            #     if killerMove1[ply].startSq == move.startSq and killerMove1[ply].endSq == move.endSq:
+            #         move.score = 9000
+            # #second killer move
+            # elif(isinstance(killerMove2[ply], Move.Move)) :
+            #     if killerMove2[ply].startSq == move.startSq and killerMove2[ply].endSq == move.endSq:
+            #         move.score = 8000
             # #score history move
             # else:
-                if historyMoves[move.pieceMoved].get(move.endSq) != None:
-                    move.score = historyMoves[move.pieceMoved][move.endSq]
+                # if historyMoves[move.pieceMoved].get(move.endSq) != None:
+                #     move.score = historyMoves[move.pieceMoved][move.endSq]
+                continue
         
             
 
@@ -271,16 +272,16 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     scorePV = False
     followPv = False
 
-    # COUNT = 0
-    # callGetMove = 0
-    # pvMove.clear()
-    #     #truyen truc tiep ca list vao findMoveNega, giong nhu truyen dia chi mang trong c++
-    #     #type in python is usually object
-
-    # score = findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1, pvMove)
+    COUNT = 0
+    callGetMove = 0
+    pvMove.clear()
+        #truyen truc tiep ca list vao findMoveNega, giong nhu truyen dia chi mang trong c++
+        #type in python is usually object
+    # temp = DEPTH
+    # score = findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1, pvMove, temp)
     # # validMoves = gs.getValidMoves()
     # # killerMove1[ply] = validMoves[9]    
-    # sort_Move(gs, validMoves)
+    # sort_Move(gs, validMoves, DEPTH)
 
     # for move in validMoves:
     #     print('move: ', move.getChessNotation(), 'score: ', move.score)
@@ -292,7 +293,7 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     # print('number of tranversed node: ', COUNT)
     # print('number of get move : ', callGetMove)
 
-    pvTable = []
+    # pvTable = []
 
 
     alpha = -500000
@@ -472,13 +473,13 @@ def scoreMaterial(board):
 
 '''Score the board base on the material'''
 def scoreBoard(gs):
-    # if gs.checkMate:
-    #     if gs.whiteToMove:
-    #         return -CHECKMATE#blackwin
-    #     else:
-    #         return CHECKMATE
-    # elif gs.staleMate:
-    #     return STALEMATE
+    if gs.checkMate:
+        if gs.whiteToMove:
+            return -CHECKMATE#blackwin
+        else:
+            return CHECKMATE
+    elif gs.staleMate:
+        return STALEMATE
 
     score = 0
     for row in range(8):
