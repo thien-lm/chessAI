@@ -141,16 +141,15 @@ def scoreMove(gs, validMoves, depth):
             move.score = MVV_LVA[pieceToMVV_LVA[startPiece]][pieceToMVV_LVA[endPiece]] + 10000
 
         if not move.isCaptureMove:#for non cap move
-            # # #score 1st killer move
-            # if(isinstance(killerMove1[ply], Move.Move)):
-            #     if killerMove1[ply].startSq == move.startSq and killerMove1[ply].endSq == move.endSq:
-            #         move.score = 9000
-            # elif(isinstance(killerMove2[ply], Move.Move)) :
-            #     if killerMove2[ply].startSq == move.startSq and killerMove2[ply].endSq == move.endSq:
-            #         move.score = 8000
-            # # elif killerMove2[ply].pieceMoved == move.pieceMoved:
-            # #     move.score = 8000
-            # # #score history move
+            # #score 1st killer move
+            if(isinstance(killerMove1[ply], Move.Move)):
+                if killerMove1[ply].startSq == move.startSq and killerMove1[ply].endSq == move.endSq:
+                    move.score = 9000
+            #second killer move
+            elif(isinstance(killerMove2[ply], Move.Move)) :
+                if killerMove2[ply].startSq == move.startSq and killerMove2[ply].endSq == move.endSq:
+                    move.score = 8000
+            # #score history move
             # else:
                 if historyMoves[move.pieceMoved].get(move.endSq) != None:
                     move.score = historyMoves[move.pieceMoved][move.endSq]
