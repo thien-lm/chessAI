@@ -144,15 +144,15 @@ def scoreMove(gs, validMoves, depth):
         #for non cap move
         if not move.isCaptureMove:
             # score 1st killer move
-            if(isinstance(killerMove1[ply], Move.Move)):
-                if killerMove1[ply].startSq == move.startSq and killerMove1[ply].endSq == move.endSq:
-                    move.score = 9000
-            #second killer move
-            elif(isinstance(killerMove2[ply], Move.Move)) :
-                if killerMove2[ply].startSq == move.startSq and killerMove2[ply].endSq == move.endSq:
-                    move.score = 8000
-            #score history move
-            else:
+            # if(isinstance(killerMove1[ply], Move.Move)):
+            #     if killerMove1[ply].startSq == move.startSq and killerMove1[ply].endSq == move.endSq:
+            #         move.score = 9000
+            # #second killer move
+            # elif(isinstance(killerMove2[ply], Move.Move)) :
+            #     if killerMove2[ply].startSq == move.startSq and killerMove2[ply].endSq == move.endSq:
+            #         move.score = 8000
+            # #score history move
+            # else:
                 if historyMoves[move.pieceMoved].get(move.endSq) != None:
                     move.score = historyMoves[move.pieceMoved][move.endSq]
             
@@ -166,9 +166,6 @@ def scoreMoveQuie(gs, validMoves):
             startPiece = move.pieceMoved[1]
             endPiece = move.pieceCaptured[1]
             move.score = MVV_LVA[pieceToMVV_LVA[startPiece]][pieceToMVV_LVA[endPiece]] + 10000
-        if not move.isCaptureMove:#for non cap move
-                if historyMoves[move.pieceMoved].get(move.endSq) != None:
-                    move.score = historyMoves[move.pieceMoved][move.endSq]
 def sort_move_quie(gs, validMoves):
     scoreMoveQuie(gs, validMoves)
     # print("befiore sort, ", len(validMoves))
@@ -327,7 +324,7 @@ def Quiesce(alpha, beta, depth, gs, validMoves, turnMultipler, currentDepth):
     #make all possiblemove
     nextMoves = gs.getValidMoves()
     #sort all captureed move
-    sort_move_quie(gs, gs.capturedMove)
+    sort_move(gs, gs.capturedMove, currentDepth)
     for move in gs.capturedMove:
         gs.makeMove(move)
         score = -Quiesce(-beta, -alpha, depth -1,  gs, nextMoves, -turnMultipler, currentDepth)#max(a, b) = min(-a, -b) = -max(-a, -b)
@@ -351,9 +348,18 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler, 
     if depth == 0 or len(validMoves) == 0:
         return Quiesce(alpha, beta, 7, gs, validMoves, turnMultipler, tempDepth)
 
+
+    #null move pruning
+    if depth >= 3 and gs.inCheck() == False and ply >= 1:
+        gs.whiteToMove = not gs.whiteToMove
+        scoreNull = -findMoveNegaMaxAlphaBeta(gs, validMoves, depth - 1 - 2, -beta, -beta + 1, -turnMultipler, [], tempDepth)
+        gs.whiteToMove = not gs.whiteToMove
+        if scoreNull >= beta:
+            return beta
+    #enable follow pv line
     nextMoves = gs.getValidMoves()
     callGetMove += 1
-    #enable follow pv line
+
     if followPv:
         callEnable += 1
         enalbePvScoring(nextMoves, tempDepth)
