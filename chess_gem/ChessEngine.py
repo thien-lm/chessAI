@@ -14,15 +14,15 @@ class GameState():
         # represent a 8x8 chess Board
         # bR = black Rock
         # wR = white Rock
-        # self.board = [
-        #     ["bR", "--", "--", "--", "bK", "--", "--", "bR"],
-        #     ["bp", "--", "bp", "bp", "bQ", "bp", "bB", "--"],
-        #     ["bB", "bN", "--", "--", "bp", "bN", "bp", "--"],
-        #     ["--", "--", "--", "wp", "wN", "--", "--", "--"],
-        #     ["--", "bp", "--", "--", "wp", "--", "--", "--"],
-        #     ["--", "--", "wN", "--", "--", "wQ", "--", "bp"],
-        #     ["wp", "wp", "wp", "wB", "wB", "wp", "wp", "wp"],
-        #     ["wR", "--", "--", "--", "wK", "--", "--", "wR"]]
+        self.board = [
+            ["bR", "--", "--", "--", "bK", "--", "--", "bR"],
+            ["bp", "--", "bp", "bp", "bQ", "bp", "bB", "--"],
+            ["bB", "bN", "--", "--", "bp", "bN", "bp", "--"],
+            ["--", "--", "--", "wp", "wN", "--", "--", "--"],
+            ["--", "bp", "--", "--", "wp", "--", "--", "--"],
+            ["--", "--", "wN", "--", "--", "wQ", "--", "bp"],
+            ["wp", "wp", "wp", "wB", "wB", "wp", "wp", "wp"],
+            ["wR", "--", "--", "--", "wK", "--", "--", "wR"]]
         #test Killer move
         # self.board = [
         #     ["--", "--", "--", "--", "--", "--", "--", "--"],
@@ -78,16 +78,28 @@ class GameState():
         #     ["--", "--", "--", "--", "--", "--", "--", "--"]
         # ]
 
-        self.board = [
-            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
-            ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-            ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
-        ]        
+        # self.board = [
+        #     ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
+        #     ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
+        #     ['--', '--', '--', '--', '--', '--', '--', '--'],
+        #     ['--', '--', '--', '--', '--', '--', '--', '--'],
+        #     ['--', '--', '--', '--', '--', '--', '--', '--'],
+        #     ['--', '--', '--', '--', '--', '--', '--', '--'],
+        #     ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
+        #     ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
+        # ]       
+        #bug after killer and nullmove pruning
+        #bug cause by aspiration window
+        # self.board = [
+        #     ["--", "--", "--", "--", "bR", "bR", "bK", "--"],
+        #     ['--', '--', '--', 'bQ', '--', '--', 'bp', '--'],
+        #     ['bB', 'bp', '--', 'bp', 'bp', '--', '--', 'bp'],
+        #     ['bp', '--', '--', 'bp', '--', '--', '--', '--'],
+        #     ['wp', 'bN', 'wp', 'wp', 'bp', '--', '--', '--'],
+        #     ['--', 'wp', '--', '--', 'wp', '--', 'wp', '--'],
+        #     ['--', 'wB', '--', '--', 'wQ', 'wp', 'wB', 'wp'],
+        #     ["--", "--", "wK", "wR", "wR", "--", "--", "--"]
+        # ]    
         self.moveFunction = {  'N': self.getKnightMoves, 'R': self.getRookMoves,'Q': self.getQueenMoves, 'B': self.getBishopMoves,'p': self.getPawnMoves, 'K': self.getKingMoves }
         self.whiteToMove =  True
         self.moveLog = [] 
@@ -97,6 +109,7 @@ class GameState():
         self.checkMate = False
         self.staleMate = False
         self.in_Check = False
+        self.isKingInCheck = False
         self.pins = []
         self.checks = []
         self.numberMove = 0
@@ -305,9 +318,12 @@ class GameState():
         
         self.capturedMove = []
         self.nonCapturedMove = []
+        self.isKingInCheck = False
         for move in moves:
             if move.isCaptureMove:
-                self.capturedMove.append(move) 
+                self.capturedMove.append(move)
+                if move.pieceCaptured[1] =='K':
+                    self.isKingInCheck = True 
             else:
                 self.nonCapturedMove.append(move)
         return moves
@@ -682,7 +698,7 @@ class GameState():
             self.getQueensideCatleMoves(r, c, moves)
             
     def getKingsideCastleMoves(self, r, c, moves):
-        if 0 <= r and r <= 7 and 0 <= c+1 and c+ 1 <= 7 and 0 <= r+2 and r+2 <= 7: 
+        if 0 <= r and r <= 7 and 0 <= c+1 and c+ 1 <= 7 and 0 <= c+2 and c+2 <= 7: 
             if self.board[r][c+1] == '--' and self.board[r][c+2] == '--':
                 if not self.squareUnderAttack(r, c+1) and not self.squareUnderAttack(r, c + 2 ):
                     

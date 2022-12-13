@@ -12,7 +12,7 @@ COUNT = 0
 callScoreBoard = 0
 callGetMove = 0
 
-pieceScore = {'K':0, 'Q': 1000,'R': 500, 'B': 350, 'N': 300, 'p': 100}
+pieceScore = {'K':10000, 'Q': 1000,'R': 500, 'B': 350, 'N': 300, 'p': 100}
 knightScores = np.array((
                 ( -5,   0,   0,   0,   0,   0,   0,  -5),
                  ( -5,   0,   0,  10,  10,   0,   0,  -5),
@@ -147,16 +147,16 @@ def scoreMove(gs, validMoves, depth):
             move.score = MVV_LVA[pieceToMVV_LVA[startPiece]][pieceToMVV_LVA[endPiece]] + 10000
         #for non cap move
         if not move.isCaptureMove:
-            # score 1st killer move
-            # if(isinstance(killerMove1[ply], Move.Move)):
-            #     if killerMove1[ply].startSq == move.startSq and killerMove1[ply].endSq == move.endSq:
-            #         move.score = 9000
-            # #second killer move
-            # elif(isinstance(killerMove2[ply], Move.Move)) :
-            #     if killerMove2[ply].startSq == move.startSq and killerMove2[ply].endSq == move.endSq:
-            #         move.score = 8000
-            # #score history move
-            # else:
+#            score 1st killer move
+            if(isinstance(killerMove1[ply], Move.Move)):
+                if killerMove1[ply].startSq == move.startSq and killerMove1[ply].endSq == move.endSq:
+                    move.score = 9000
+            #second killer move
+            elif(isinstance(killerMove2[ply], Move.Move)) :
+                if killerMove2[ply].startSq == move.startSq and killerMove2[ply].endSq == move.endSq:
+                    move.score = 8000
+            # score history move
+            else:
                 if historyMoves[move.pieceMoved].get(move.endSq) != None:
                     move.score = historyMoves[move.pieceMoved][move.endSq]
             
@@ -170,6 +170,19 @@ def scoreMoveQuie(gs, validMoves):
             startPiece = move.pieceMoved[1]
             endPiece = move.pieceCaptured[1]
             move.score = MVV_LVA[pieceToMVV_LVA[startPiece]][pieceToMVV_LVA[endPiece]] + 10000
+        if not move.isCaptureMove:
+            # score 1st killer move
+            # if(isinstance(killerMove1[ply], Move.Move)):
+            #     if killerMove1[ply].startSq == move.startSq and killerMove1[ply].endSq == move.endSq:
+            #         move.score = 9000
+            # #second killer move
+            # elif(isinstance(killerMove2[ply], Move.Move)) :
+            #     if killerMove2[ply].startSq == move.startSq and killerMove2[ply].endSq == move.endSq:
+            #         move.score = 8000
+            #score history move
+            # else:
+                if historyMoves[move.pieceMoved].get(move.endSq) != None:
+                    move.score = historyMoves[move.pieceMoved][move.endSq]
 def sort_move_quie(gs, validMoves):
     scoreMoveQuie(gs, validMoves)
     # print("befiore sort, ", len(validMoves))
@@ -307,13 +320,14 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
         #truyen truc tiep ca list vao findMoveNega, giong nhu truyen dia chi mang trong c++
         #type in python is usually object
         tempDepth = currentDepth
-        score = findMoveNegaMaxAlphaBeta(gs, validMoves, currentDepth, alpha, beta, 1 if gs.whiteToMove else -1, pvMove, tempDepth, prevMove)
+        score = findMoveNegaMaxAlphaBeta(gs, validMoves, currentDepth, alpha, beta, 1 if gs.whiteToMove else -1, pvMove, tempDepth, True)
         # print('--------------------')
         # printKiller(killerMove1, killerMove2)
         #solve null move bug theo phuong phap gia cay
         if pvMove == []:
-            for i in range(currentDepth):
-                pvMove.append(pvTable[0][0])
+            for i in range(currentDepth - 1):
+                pvMove.append(pvTable[currentDepth - 2][i])
+            pvMove.append(pvTable[0][0])
 
         pvTable.append(deepcopy(pvMove))
 
@@ -328,11 +342,11 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
             continue
         alpha = score - 50
         beta = score + 50
-    # # #print pv move each depth    
-    # for listMove in pvTable:
-    #     for element in listMove:
-    #         print(element.getChessNotation(), ' ')
-    #     print('------------')
+    # #print pv move each depth    
+    for listMove in pvTable:
+        for element in listMove:
+            print(element.getChessNotation(), ' ')
+        print('------------')
     returnQueue.put(nextMove)
 #quiesence search after reach the end
 def Quiesce(alpha, beta, depth, gs, validMoves, turnMultipler, currentDepth):
@@ -349,7 +363,7 @@ def Quiesce(alpha, beta, depth, gs, validMoves, turnMultipler, currentDepth):
     #make all possiblemove
     nextMoves = gs.getValidMoves()
     #sort all captureed move
-    sort_move(gs, gs.capturedMove, currentDepth)
+    sort_move_quie(gs, gs.capturedMove)
     for move in  gs.capturedMove:
         gs.makeMove(move)
         score = -Quiesce(-beta, -alpha, depth -1,  gs, nextMoves, -turnMultipler, currentDepth)#max(a, b) = min(-a, -b) = -max(-a, -b)
@@ -360,7 +374,7 @@ def Quiesce(alpha, beta, depth, gs, validMoves, turnMultipler, currentDepth):
             alpha = score
     return alpha
 #nega max function
-def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler, pv, tempDepth, previousMove):
+def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler, pv, tempDepth, allowNull):
     global COUNT
     global callGetMove
     global callEnable
@@ -372,29 +386,32 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler, 
     global scorePV
     COUNT += 1
     #break condition
-    if depth == 0:
+    if depth == 0 or len(validMoves) == 0:
+        # return scoreBoard(gs)
         return Quiesce(alpha, beta, 7, gs, validMoves, turnMultipler, tempDepth)
-    #null move pruning
-    # if depth >= 3 and gs.inCheck() == False and ply >= 1:
-    #     gs.whiteToMove = not gs.whiteToMove
-    #     #nullify enpassant square
-    #     gs.enpassant_possible_log.append(None)
-    #     scoreNull = -findMoveNegaMaxAlphaBeta(gs, validMoves, depth - 1 - 2, -beta, -beta + 1, -turnMultipler, [], tempDepth, None)
-
-    #     gs.whiteToMove = not gs.whiteToMove
-    #     #revert enpassant back
-    #     gs.enpassant_possible_log.pop()
-    #     if scoreNull >= beta:
-    #         return beta
+    # #null move pruning
+    if allowNull and not followPv:
+        if depth >= 4 and ply >= 1 and gs.isKingInCheck == False:
+            gs.whiteToMove = not gs.whiteToMove
+            #nullify enpassant square
+            gs.enpassant_possible_log.append(None)
+            allowNull = False
+            ply += 1
+            scoreNull = -findMoveNegaMaxAlphaBeta(gs, validMoves, depth - 1 - 2, -beta, -beta + 1, -turnMultipler, [], tempDepth, allowNull)
+            allowNull = True
+            ply -= 1
+            gs.whiteToMove = not gs.whiteToMove
+            #revert enpassant back
+            gs.enpassant_possible_log.pop()
+            if scoreNull >= beta:
+                return beta
     #enable follow pv line
     nextMoves = gs.getValidMoves()
     callGetMove += 1
 
     #check if endgame
-    # if len(nextMoves) == 0 and depth == tempDepth - 1:
-    #     nextMove = deepcopy(prevMove)
-    #     endGameFlag = True
-    #     return 999999*-turnMultipler
+    if len(nextMoves) == 0 :
+        print('seems some one will lost ____________________________________________________________')
 
     if followPv:
         callEnable += 1
@@ -405,9 +422,8 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler, 
     for move in nextMoves:
         childPV = []
         gs.makeMove(move)
-        prevMove = deepcopy(move)
         ply += 1
-        score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth - 1, -beta, -alpha,  -turnMultipler, childPV, tempDepth, prevMove)#max(a, b) = min(-a, -b) = -max(-a, -b)
+        score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth - 1, -beta, -alpha,  -turnMultipler, childPV, tempDepth, allowNull)#max(a, b) = min(-a, -b) = -max(-a, -b)
         ply -= 1
         gs.undoMove()
 
