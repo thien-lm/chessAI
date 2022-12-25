@@ -6,7 +6,7 @@ import ChessMain
 from copy import copy, deepcopy
 import time
 
-CHECKMATE = 500000
+CHECKMATE = 50000
 STALEMATE = 0
 COUNT = 0
 callScoreBoard = 0
@@ -342,7 +342,7 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
             continue
         alpha = score - 50
         beta = score + 50
-    # #print pv move each depth    
+    #print pv move each depth    
     for listMove in pvTable:
         for element in listMove:
             print(element.getChessNotation(), ' ')
@@ -381,17 +381,16 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler, 
     global nextMove
     global ply
     global followPv
-    global endGameFlag
-    global prevMove
     global scorePV
     COUNT += 1
     #break condition
     if depth == 0 or len(validMoves) == 0:
         # return scoreBoard(gs)
         return Quiesce(alpha, beta, 7, gs, validMoves, turnMultipler, tempDepth)
+
     # #null move pruning
     if allowNull and not followPv:
-        if depth >= 4 and ply >= 1 and gs.isKingInCheck == False:
+        if depth >= 3 and ply >= 1:
             gs.whiteToMove = not gs.whiteToMove
             #nullify enpassant square
             gs.enpassant_possible_log.append(None)
@@ -405,14 +404,14 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler, 
             gs.enpassant_possible_log.pop()
             if scoreNull >= beta:
                 return beta
-    #enable follow pv line
+    
     nextMoves = gs.getValidMoves()
     callGetMove += 1
 
     #check if endgame
     if len(nextMoves) == 0 :
         print('seems some one will lost ____________________________________________________________')
-
+    #enable follow pv line
     if followPv:
         callEnable += 1
         enalbePvScoring(nextMoves, tempDepth)
