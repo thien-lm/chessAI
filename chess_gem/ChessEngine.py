@@ -14,15 +14,15 @@ class GameState():
         # represent a 8x8 chess Board
         # bR = black Rock
         # wR = white Rock
-        self.board = [
-            ["bR", "--", "--", "--", "bK", "--", "--", "bR"],
-            ["bp", "--", "bp", "bp", "bQ", "bp", "bB", "--"],
-            ["bB", "bN", "--", "--", "bp", "bN", "bp", "--"],
-            ["--", "--", "--", "wp", "wN", "--", "--", "--"],
-            ["--", "bp", "--", "--", "wp", "--", "--", "--"],
-            ["--", "--", "wN", "--", "--", "wQ", "--", "bp"],
-            ["wp", "wp", "wp", "wB", "wB", "wp", "wp", "wp"],
-            ["wR", "--", "--", "--", "wK", "--", "--", "wR"]]
+        # self.board = [
+        #     ["bR", "--", "--", "--", "bK", "--", "--", "bR"],
+        #     ["bp", "--", "bp", "bp", "bQ", "bp", "bB", "--"],
+        #     ["bB", "bN", "--", "--", "bp", "bN", "bp", "--"],
+        #     ["--", "--", "--", "wp", "wN", "--", "--", "--"],
+        #     ["--", "bp", "--", "--", "wp", "--", "--", "--"],
+        #     ["--", "--", "wN", "--", "--", "wQ", "--", "bp"],
+        #     ["wp", "wp", "wp", "wB", "wB", "wp", "wp", "wp"],
+        #     ["wR", "--", "--", "--", "wK", "--", "--", "wR"]]
         #test Killer move
         # self.board = [
         #     ["--", "--", "--", "--", "--", "--", "--", "--"],
@@ -322,7 +322,7 @@ class GameState():
         for move in moves:
             if move.isCaptureMove:
                 self.capturedMove.append(move)
-                if move.pieceCaptured[1] =='K':
+                if move.pieceCaptured =='bK':
                     self.isKingInCheck = True 
             else:
                 self.nonCapturedMove.append(move)

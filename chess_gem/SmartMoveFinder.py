@@ -283,7 +283,7 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
     #truyen truc tiep ca list vao findMoveNega, giong nhu truyen dia chi mang trong c++
     #type in python is usually object
     # temp = DEPTH
-    # score = findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1, pvMove, temp)
+    # score = findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1, pvMove, temp, False)
     # # validMoves = gs.getValidMoves()
     # # killerMove1[ply] = validMoves[9]    
     # print("score ", score)
@@ -336,17 +336,17 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
             print('number of tranversed node: ', COUNT)
             print('number of get move : ', callGetMove)
 
-        if score <= alpha or score >= beta:
-            alpha = -500000
-            beta = 500000
-            continue
-        alpha = score - 50
-        beta = score + 50
-    #print pv move each depth    
-    for listMove in pvTable:
-        for element in listMove:
-            print(element.getChessNotation(), ' ')
-        print('------------')
+    #     if score <= alpha or score >= beta:
+    #         alpha = -500000
+    #         beta = 500000
+    #         continue
+    #     alpha = score - 50
+    #     beta = score + 50
+    # #print pv move each depth    
+    # for listMove in pvTable:
+    #     for element in listMove:
+    #         print(element.getChessNotation(), ' ')
+    #     print('------------')
     returnQueue.put(nextMove)
 #quiesence search after reach the end
 def Quiesce(alpha, beta, depth, gs, validMoves, turnMultipler, currentDepth):
@@ -385,10 +385,10 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler, 
     COUNT += 1
     #break condition
     if depth == 0 or len(validMoves) == 0:
-        # return scoreBoard(gs)
+        #return scoreBoard(gs)
         return Quiesce(alpha, beta, 7, gs, validMoves, turnMultipler, tempDepth)
 
-    # #null move pruning
+    #null move pruning
     if allowNull and not followPv:
         if depth >= 3 and ply >= 1:
             gs.whiteToMove = not gs.whiteToMove
@@ -453,6 +453,9 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler, 
             pv.append(bestMove)
             pv += childPV
 
+    if len(nextMoves) == 0 and depth == tempDepth - 1: 
+        if gs.inCheck() and turnMultipler == -1:
+            return -490000 + ply
     return alpha
 
 '''Score the board base on the material'''
