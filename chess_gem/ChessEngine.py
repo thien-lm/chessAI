@@ -14,14 +14,15 @@ class GameState():
         # represent a 8x8 chess Board
         # bR = black Rock
         # wR = white Rock
+        #bug when gen qeen moves
         # self.board = [
         #     ["bR", "--", "--", "--", "bK", "--", "--", "bR"],
-        #     ["bp", "--", "bp", "bp", "bQ", "bp", "bB", "--"],
-        #     ["bB", "bN", "--", "--", "bp", "bN", "bp", "--"],
-        #     ["--", "--", "--", "wp", "wN", "--", "--", "--"],
-        #     ["--", "bp", "--", "--", "wp", "--", "--", "--"],
-        #     ["--", "--", "wN", "--", "--", "wQ", "--", "bp"],
-        #     ["wp", "wp", "wp", "wB", "wB", "wp", "wp", "wp"],
+        #     ["--", "--", "--", "--", "bQ", "--", "bB", "--"],
+        #     ["--", "--", "--", "--", "--", "--", "bp", "--"],
+        #     ["--", "--", "--", "--", "--", "--", "--", "--"],
+        #     ["--", "bp", "--", "--", "wQ", "--", "--", "--"],
+        #     ["--", "--", "--", "--", "--", "--", "--", "bp"],
+        #     ["wp", "wp", "--", "--", "--", "wp", "wp", "wp"],
         #     ["wR", "--", "--", "--", "wK", "--", "--", "wR"]]
         #test Killer move
         # self.board = [
@@ -639,23 +640,26 @@ class GameState():
                 else: #off board
                     break
     def getQueenMoves(self, r, c, moves):
-        directions = ((-1, -1), (1, 1), (1, -1), (-1, 1), (-1, 0), (1, 0), (0, 1), (0, -1))
-        enemyColor = 'b' if self.whiteToMove else 'w'
-        for d in directions:
-            for i in range(1, 8):
-                endRow = r + d[0]*i
-                endCol = c + d[1]*i
-                if 0 <= endCol < 8 and 0 <= endRow < 8:
-                    endPiece = self.board[endRow][endCol]
-                    if endPiece == '--':
-                        moves.append(Move((r, c), (endRow, endCol), self.board))
-                    elif endPiece[0] == enemyColor:
-                        moves.append(Move((r, c), (endRow, endCol), self.board))
-                        break
-                    else:
-                        break
-                else:
-                     break                    
+        self.getRookMoves( r, c, moves)
+        self.getBishopMoves( r, c, moves)       
+        
+        # directions = ((-1, -1), (1, 1), (1, -1), (-1, 1), (-1, 0), (1, 0), (0, 1), (0, -1))
+        # enemyColor = 'b' if self.whiteToMove else 'w'
+        # for d in directions:
+        #     for i in range(1, 8):
+        #         endRow = r + d[0]*i
+        #         endCol = c + d[1]*i
+        #         if 0 <= endCol < 8 and 0 <= endRow < 8:
+        #             endPiece = self.board[endRow][endCol]
+        #             if endPiece == '--':
+        #                 moves.append(Move((r, c), (endRow, endCol), self.board))
+        #             elif endPiece[0] == enemyColor:
+        #                 moves.append(Move((r, c), (endRow, endCol), self.board))
+        #                 break
+        #             else:
+        #                 break
+        #         else:
+        #              break                    
 
     
     def getKingMoves(self, row, col, moves):
