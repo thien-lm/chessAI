@@ -71,7 +71,7 @@ def main():
     playerClicks = [] # keep track player click
     gameOver = False
     playerOne = False#if a human is playing, human play white, AI playing = false
-    playerTwo = True#same as above but for black
+    playerTwo = False#same as above but for black
     AIThinking = False
     moveFinderProcess = None
     moveUndone = False

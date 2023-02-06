@@ -309,7 +309,7 @@ def findBestMove(gs, validMoves, DEPTH, returnQueue):
         #     break
 
         # endGameFlag = False
-        # prevMove = None
+        # prevMove = None000000000000000000
 
         followPv = True
         COUNT = 0
@@ -452,7 +452,7 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultipler, 
             pv.clear()
             pv.append(bestMove)
             pv += childPV
-
+    #chi co the win khi tinh truoc 1 buoc di
     if len(nextMoves) == 0 and depth == tempDepth - 1: 
         if gs.inCheck() and turnMultipler == -1:
             return -490000 + ply
