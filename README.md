@@ -14,3 +14,4 @@ todo:
 <br>-store board state to avoid re-calcuate valid move twice each move
 
 <br>-for better heuristic function: https://www.youtube.com/watch?v=2Go0IPVoTtY&t=13s&ab_channel=LogicCrazyChess 
+<br> required library: pychess, pygame, easygui</br>
